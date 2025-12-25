@@ -1,0 +1,25 @@
+# Python Dependencies for SecureCorp Security Assessment Project
+
+# Network and HTTP
+requests>=2.28.0
+dnspython>=2.3.0
+
+# Security Tools Integration
+python-nmap>=0.7.1
+
+# Data Processing
+python-dateutil>=2.8.2
+
+# Reporting
+markdown>=3.4.0
+
+# Note: The following tools need to be installed separately (system packages):
+# - nmap (network scanner)
+# - nikto (web server scanner)
+# - nuclei (vulnerability scanner)
+# - hashcat (password cracking)
+# - john the ripper (password cracking)
+# - aircrack-ng (Wi-Fi security)
+# - burp suite (web application testing)
+# - metasploit framework (exploitation)
+

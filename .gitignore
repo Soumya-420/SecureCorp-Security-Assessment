@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Project specific
+*.json
+*.log
+*.txt
+!requirements.txt
+
+# Scan results
+*_results.json
+*_report.json
+*_scan.json
+scan_*.json
+vuln_*.json
+dns_*.json
+wifi_*.json
+
+# Temporary files
+*.tmp
+*.temp
+hash_temp.txt
+*.bak
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Sensitive data
+passwords.txt
+credentials.txt
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Wordlists (too large for git)
+wordlists/
+*.lst
+rockyou.txt
+
+# Reports with sensitive data
+reports/*.pdf
+reports/*.docx
+reports/*_sensitive.*
+
+# Logs
+*.log
+logs/
+
