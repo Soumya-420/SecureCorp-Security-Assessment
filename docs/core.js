@@ -414,7 +414,7 @@ async function handleCommand(cmd) {
 
     switch (lowerCmd) {
         case 'help':
-            response = "AVAILABLE COMMANDS: help, clear, scan [target], nmap [target], date, whoami, status, login, reboot, capture";
+            response = "AVAILABLE COMMANDS: help, clear, apt-get, nmap [target], scan [target], date, whoami, status, login, reboot, capture";
             break;
         case 'clear':
             output.innerHTML = '';
@@ -458,6 +458,13 @@ async function handleCommand(cmd) {
                 }
 
                 appendResponse(output, `Starting Nmap 7.94 ( https://nmap.org ) at ${new Date().toTimeString().split(' ')[0]}`);
+
+                // Flag Simulation
+                if (args.includes('-O')) appendResponse(output, `[+] Enabling OS Detection...`);
+                if (args.includes('-sS')) appendResponse(output, `[+] Initiating SYN Stealth Scan...`);
+                if (args.includes('-p')) appendResponse(output, `[+] Scanning specified ports...`);
+                if (args.includes('-A')) appendResponse(output, `[+] Enabling OS detection, version detection, script scanning, and traceroute...`);
+
                 appendResponse(output, `Nmap scan report for ${target}`);
                 appendResponse(output, `Host is up (0.00${Math.floor(Math.random() * 9)}s latency).`);
 
@@ -528,14 +535,34 @@ PORT      STATE SERVICE
             } else {
                 response = "Usage: capture <filename>";
             }
-            break;
-        case '':
-            return;
-        default:
-            response = `COMMAND NOT FOUND: ${cmd}. Type 'help' for available commands.`;
+    } else {
+        response = "Usage: capture <filename>";
     }
+    break;
+        case 'apt-get':
+        case 'install':
+    if (args.length > 0) {
+        if (args[0] === 'install') {
+            const pkg = args[1];
+            if (!pkg) {
+                response = "Usage: apt-get install <package_name>";
+            } else {
+                response = `Reading package lists... Done\nBuilding dependency tree... Done\nReading state information... Done\n\nPackage '${pkg}' is being installed...\n[####################] 100%\n\n${pkg} is now installed.`;
+            }
+        } else {
+            response = "Usage: apt-get install <package_name>";
+        }
+    } else {
+        response = "Usage: apt-get install <package_name>";
+    }
+    break;
+        case '':
+    return;
+        default:
+    response = `COMMAND NOT FOUND: ${cmd}. Type 'help' for available commands.`;
+}
 
-    appendResponse(output, response);
+appendResponse(output, response);
 }
 
 function appendResponse(container, text, isResult = false) {
