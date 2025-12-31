@@ -421,7 +421,9 @@ function handleCommand(cmd) {
         case 'scan':
             if (args.length > 0) {
                 const target = args[0];
-                response = `INITIATING DEEP SCAN ON ${target}...\n[+] Resolving host...\n[+] Checking ports...\n[!] VULNERABILITY DETECTED: CVE-2024-XXXX`;
+                const cve = `CVE-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+                const port = Math.random() > 0.5 ? "443 (HTTPS)" : "80 (HTTP)";
+                response = `INITIATING DEEP SCAN ON ${target}...\n[+] Resolving host... [OK]\n[+] Checking ports... ${port} OPEN\n[!] VULNERABILITY DETECTED: ${cve} (High Severity)\n[+] Payload delivery... [READY]`;
             } else {
                 response = "Usage: scan <target_ip_or_domain>";
             }
@@ -570,6 +572,13 @@ window.showModuleDetails = async function (id) {
     const data = moduleData[id];
     console.log("Showing details for:", id, data); // Debug Log
     if (!data) return;
+
+    // Security Check
+    if (!isAuthenticated) {
+        alert("⛔ ACCESS DENIED: High-Level Clearance Required.\nPlease login to view classified module details.");
+        authCheck(); // Trigger Login Modal
+        return;
+    }
 
     currentModId = id;
     showSection('moduleDetails');
