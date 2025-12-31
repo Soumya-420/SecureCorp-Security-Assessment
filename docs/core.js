@@ -449,49 +449,45 @@ async function handleCommand(cmd) {
 
             executeNmap(args, output);
             return;
-    } else {
-        response = "Usage: nmap <options> <target>";
-    }
-    break;
         case 'login':
-    document.getElementById('authModal').style.display = 'block';
-    response = "Launching Authentication Protocol...";
-    break;
+            document.getElementById('authModal').style.display = 'block';
+            response = "Launching Authentication Protocol...";
+            break;
         case 'reboot':
-    location.reload();
-    break;
+            location.reload();
+            break;
         case 'capture':
-    if (args.length > 0) {
-        const file = args[0];
-        response = `[+] CAPTURING ARTIFACT: ${file}...\n[+] VERIFYING CHECKSUM... [OK]\n[+] SAVED TO LOCAL STORAGE.`;
-    } else {
-        response = "Usage: capture <filename>";
-    }
-    break;
+            if (args.length > 0) {
+                const file = args[0];
+                response = `[+] CAPTURING ARTIFACT: ${file}...\n[+] VERIFYING CHECKSUM... [OK]\n[+] SAVED TO LOCAL STORAGE.`;
+            } else {
+                response = "Usage: capture <filename>";
+            }
+            break;
         case 'apt-get':
         case 'install':
-    if (args.length > 0) {
-        if (args[0] === 'install') {
-            const pkg = args[1];
-            if (!pkg) {
-                response = "Usage: apt-get install <package_name>";
+            if (args.length > 0) {
+                if (args[0] === 'install') {
+                    const pkg = args[1];
+                    if (!pkg) {
+                        response = "Usage: apt-get install <package_name>";
+                    } else {
+                        response = `Reading package lists... Done\nBuilding dependency tree... Done\nReading state information... Done\n\nPackage '${pkg}' is being installed...\n[####################] 100%\n\n${pkg} is now installed.`;
+                    }
+                } else {
+                    response = "Usage: apt-get install <package_name>";
+                }
             } else {
-                response = `Reading package lists... Done\nBuilding dependency tree... Done\nReading state information... Done\n\nPackage '${pkg}' is being installed...\n[####################] 100%\n\n${pkg} is now installed.`;
+                response = "Usage: apt-get install <package_name>";
             }
-        } else {
-            response = "Usage: apt-get install <package_name>";
-        }
-    } else {
-        response = "Usage: apt-get install <package_name>";
-    }
-    break;
+            break;
         case '':
-    return;
+            return;
         default:
-    response = `COMMAND NOT FOUND: ${cmd}. Type 'help' for available commands.`;
-}
+            response = `COMMAND NOT FOUND: ${cmd}. Type 'help' for available commands.`;
+    }
 
-appendResponse(output, response);
+    appendResponse(output, response);
 }
 
 function appendResponse(container, text, isResult = false) {
