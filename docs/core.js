@@ -460,10 +460,22 @@ async function handleCommand(cmd) {
                 appendResponse(output, `Starting Nmap 7.94 ( https://nmap.org ) at ${new Date().toTimeString().split(' ')[0]}`);
 
                 // Flag Simulation
+                // Flag Simulation - Comprehensive
                 if (args.includes('-O')) appendResponse(output, `[+] Enabling OS Detection...`);
-                if (args.includes('-sS')) appendResponse(output, `[+] Initiating SYN Stealth Scan...`);
-                if (args.includes('-p')) appendResponse(output, `[+] Scanning specified ports...`);
                 if (args.includes('-A')) appendResponse(output, `[+] Enabling OS detection, version detection, script scanning, and traceroute...`);
+                if (args.includes('-sS')) appendResponse(output, `[+] Initiating SYN Stealth Scan...`);
+                if (args.includes('-sT')) appendResponse(output, `[+] Initiating TCP Connect Scan...`);
+                if (args.includes('-sU')) appendResponse(output, `[+] Initiating UDP Scan (Warning: This may be slow)...`);
+                if (args.includes('-sA')) appendResponse(output, `[+] Initiating ACP Scan (Mapping firewall sets)...`);
+                if (args.includes('-sW')) appendResponse(output, `[+] Initiating Window Scan...`);
+                if (args.includes('-sM')) appendResponse(output, `[+] Initiating Maimon Scan...`);
+                if (args.includes('-sN')) appendResponse(output, `[+] Initiating TCP Null Scan...`);
+                if (args.includes('-sF')) appendResponse(output, `[+] Initiating TCP FIN Scan...`);
+                if (args.includes('-sX')) appendResponse(output, `[+] Initiating Xmas Scan (Urgent/Push/Fin)...`);
+                if (args.includes('-sI')) appendResponse(output, `[+] Initiating Idle Scan (Zombie Host)...`);
+                if (args.includes('-sY')) appendResponse(output, `[+] Initiating SCTP INIT Scan...`);
+                if (args.includes('-sZ')) appendResponse(output, `[+] Initiating SCTP COOKIE-ECHO Scan...`);
+                if (args.includes('-p')) appendResponse(output, `[+] Scanning specified ports...`);
 
                 appendResponse(output, `Nmap scan report for ${target}`);
                 appendResponse(output, `Host is up (0.00${Math.floor(Math.random() * 9)}s latency).`);
