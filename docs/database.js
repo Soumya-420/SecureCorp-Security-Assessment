@@ -42,6 +42,8 @@ class SecurityDB {
                     const ips = data.Answer.map(r => r.data).join(', ');
                     findings = `Host: ${target} | Resolved: ${ips} | DNS Status: ${data.Status === 0 ? 'NOERROR' : 'ERROR'}`;
                     status = "COMPLETED";
+                    // Log if UI exists
+                    if (window.logActivity) window.logActivity(`DNS_QUERY_FORM: Resolved ${target} -> ${data.Answer[0].data}`);
                 } else {
                     findings = "DNS Resolution Failed: No Records";
                     status = "FAILED";

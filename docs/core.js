@@ -506,6 +506,8 @@ PORT      STATE SERVICE
 |   Status: ${data.Status === 0 ? 'NOERROR' : 'ERROR'}
 |_  Addresses: \n|   ${ips}
                             `.trim();
+                            // Log Real Activity
+                            logActivity(`DNS_QUERY: Resolved ${target} -> ${data.Answer[0].data} [TTL=${data.Answer[0].TTL}]`);
                         } else {
                             intel = `[-] DNS QUERY FAILED: No A Records Found.`;
                         }
@@ -602,6 +604,25 @@ window.renderAccessLogs = function () {
         logBody.appendChild(div);
     });
 }
+
+// Global Activity Logger for Real Events
+window.logActivity = function (message) {
+    const logBody = document.getElementById('accessLogsBody');
+    if (logBody) {
+        const div = document.createElement('div');
+        div.textContent = `[${new Date().toISOString()}] ${message}`;
+        div.style.marginBottom = '5px';
+        div.style.borderBottom = '1px dashed #333';
+        div.style.paddingBottom = '2px';
+        div.style.color = '#00ff41'; // Highlight real events
+        // Insert at top
+        if (logBody.firstChild) {
+            logBody.insertBefore(div, logBody.firstChild);
+        } else {
+            logBody.appendChild(div);
+        }
+    }
+};
 
 // === MODULE DETAILS & ANIMATION ===
 const moduleData = {
