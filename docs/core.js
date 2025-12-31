@@ -611,95 +611,97 @@ async function executeNmap(args, output) {
     appendResponse(output, `Starting Nmap 7.94 ( https://nmap.org ) at ${new Date().toISOString().replace('T', ' ').split('.')[0]}`);
 
     // Status Lines
-    const map = {
-        '-sS': 'SYN Stealth Scan', '-sT': 'TCP Connect Scan', '-sU': 'UDP Scan',
-        '-sX': 'Xmas Scan', '-sF': 'FIN Scan', '-sN': 'Null Scan',
-        '-sI': 'Idle Scan', '-Pn': 'No Ping / Host Discovery Disabled'
-    };
-    if (map[flag]) appendResponse(output, `[+] Initiating ${map[flag]}...`);
-});
-
-if (options.os) appendResponse(output, `[+] Enabling OS Detection...`);
-if (options.version) appendResponse(output, `[+] Enabling Version Detection...`);
-if (options.script) appendResponse(output, `[+] NSE: Loaded 146 scripts for scanning.`);
-
-// Loop Targets
-for (const target of options.targets) {
-    if (options.targets.length > 1) await new Promise(r => setTimeout(r, 800)); // Delay between multiple
-
-    // Handle Real Data Fetch
-    let ip = target;
-    let hostname = target;
-    let findings = [];
-
-    try {
-        const isIp = /^[0-9.]+$|^[a-fA-F0-9:]+$/.test(target);
-        if (isIp && !target.startsWith('192.168')) {
-            // Real IP
-            const res = await fetch(`https://ipapi.co/${target}/json/`);
-            const data = await res.json();
-            hostname = data.org || "Unknown";
-        } else if (!target.startsWith('192.168')) {
-            // Real DNS
-            const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${target}&type=A`, {
-                headers: { 'Accept': 'application/dns-json' }
-            });
-            const data = await res.json();
-            if (data.Answer) ip = data.Answer[0].data;
-            logActivity(`DNS_QUERY: Resolved ${target} -> ${ip}`);
-        }
-    } catch (e) { /* Ignore fetch errors for cleaner output */ }
-
-    appendResponse(output, `Nmap scan report for ${target} (${ip})`);
-    appendResponse(output, `Host is up (0.00${Math.floor(Math.random() * 9)}s latency).`);
-    if (options.targets.length > 1) appendResponse(output, `[+] Processing ${target}...`);
-
-    // Generate Port Table based on Flags
-    let tableHeader = "PORT      STATE SERVICE";
-    if (options.version) tableHeader += "    VERSION";
-
-    // Dynamic Ports based on -p
-    let portsToShow = [22, 80, 443, 8080];
-    if (options.ports !== 'default') {
-        if (options.ports === '80') portsToShow = [80];
-        if (options.ports.includes(',')) portsToShow = options.ports.split(',').map(Number);
-        if (options.ports === '-') portsToShow = [21, 22, 23, 25, 53, 80, 110, 139, 443, 445, 3306, 3389, 8080]; // Top ports
-    }
-
-    let tableContent = "";
-    portsToShow.forEach(p => {
-        // Randomize state: 50% open/closed for better demo visibility
-        const state = (Math.random() > 0.5) ? 'open  ' : 'closed';
-
-        // Logic: Always show the port, regardless of state
-
-        let service = 'unknown';
-        let version = '';
-        if (p === 22) { service = 'ssh   '; version = 'OpenSSH 8.2p1'; }
-        if (p === 80) { service = 'http  '; version = 'Apache httpd 2.4.41'; }
-        if (p === 443) { service = 'https '; version = 'nginx 1.18.0'; }
-        if (p === 53) { service = 'domain'; version = 'ISC BIND 9.16.1'; }
-
-        let line = `${p}/tcp`.padEnd(10) + state + " " + service;
-        if (options.version && state.includes('open')) line += "   " + version;
-        tableContent += line + "\n";
+    // Status Lines
+    options.scanFlags.forEach(flag => {
+        const map = {
+            '-sS': 'SYN Stealth Scan', '-sT': 'TCP Connect Scan', '-sU': 'UDP Scan',
+            '-sX': 'Xmas Scan', '-sF': 'FIN Scan', '-sN': 'Null Scan',
+            '-sI': 'Idle Scan', '-Pn': 'No Ping / Host Discovery Disabled'
+        };
+        if (map[flag]) appendResponse(output, `[+] Initiating ${map[flag]}...`);
     });
 
-    if (tableContent === "") tableContent = "All 1000 scanned ports on " + target + " are filtered\n";
+    if (options.os) appendResponse(output, `[+] Enabling OS Detection...`);
+    if (options.version) appendResponse(output, `[+] Enabling Version Detection...`);
+    if (options.script) appendResponse(output, `[+] NSE: Loaded 146 scripts for scanning.`);
 
-    appendResponse(output, tableHeader + "\n" + tableContent.trim());
+    // Loop Targets
+    for (const target of options.targets) {
+        if (options.targets.length > 1) await new Promise(r => setTimeout(r, 800)); // Delay between multiple
 
-    // Extra details
-    if (options.os) appendResponse(output, `OS details: Linux 4.15 - 5.6 (95%)`);
-    if (options.script && options.script.includes('vuln')) {
-        appendResponse(output, `| vulners:\n|   cpe:/a:apache:httpd:2.4.41: \n|     	CVE-2021-41773 7.5 https://vulners.com/cve/CVE-2021-41773`);
+        // Handle Real Data Fetch
+        let ip = target;
+        let hostname = target;
+        let findings = [];
+
+        try {
+            const isIp = /^[0-9.]+$|^[a-fA-F0-9:]+$/.test(target);
+            if (isIp && !target.startsWith('192.168')) {
+                // Real IP
+                const res = await fetch(`https://ipapi.co/${target}/json/`);
+                const data = await res.json();
+                hostname = data.org || "Unknown";
+            } else if (!target.startsWith('192.168')) {
+                // Real DNS
+                const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${target}&type=A`, {
+                    headers: { 'Accept': 'application/dns-json' }
+                });
+                const data = await res.json();
+                if (data.Answer) ip = data.Answer[0].data;
+                logActivity(`DNS_QUERY: Resolved ${target} -> ${ip}`);
+            }
+        } catch (e) { /* Ignore fetch errors for cleaner output */ }
+
+        appendResponse(output, `Nmap scan report for ${target} (${ip})`);
+        appendResponse(output, `Host is up (0.00${Math.floor(Math.random() * 9)}s latency).`);
+        if (options.targets.length > 1) appendResponse(output, `[+] Processing ${target}...`);
+
+        // Generate Port Table based on Flags
+        let tableHeader = "PORT      STATE SERVICE";
+        if (options.version) tableHeader += "    VERSION";
+
+        // Dynamic Ports based on -p
+        let portsToShow = [22, 80, 443, 8080];
+        if (options.ports !== 'default') {
+            if (options.ports === '80') portsToShow = [80];
+            if (options.ports.includes(',')) portsToShow = options.ports.split(',').map(Number);
+            if (options.ports === '-') portsToShow = [21, 22, 23, 25, 53, 80, 110, 139, 443, 445, 3306, 3389, 8080]; // Top ports
+        }
+
+        let tableContent = "";
+        portsToShow.forEach(p => {
+            // Randomize state: 50% open/closed for better demo visibility
+            const state = (Math.random() > 0.5) ? 'open  ' : 'closed';
+
+            // Logic: Always show the port, regardless of state
+
+            let service = 'unknown';
+            let version = '';
+            if (p === 22) { service = 'ssh   '; version = 'OpenSSH 8.2p1'; }
+            if (p === 80) { service = 'http  '; version = 'Apache httpd 2.4.41'; }
+            if (p === 443) { service = 'https '; version = 'nginx 1.18.0'; }
+            if (p === 53) { service = 'domain'; version = 'ISC BIND 9.16.1'; }
+
+            let line = `${p}/tcp`.padEnd(10) + state + " " + service;
+            if (options.version && state.includes('open')) line += "   " + version;
+            tableContent += line + "\n";
+        });
+
+        if (tableContent === "") tableContent = "All 1000 scanned ports on " + target + " are filtered\n";
+
+        appendResponse(output, tableHeader + "\n" + tableContent.trim());
+
+        // Extra details
+        if (options.os) appendResponse(output, `OS details: Linux 4.15 - 5.6 (95%)`);
+        if (options.script && options.script.includes('vuln')) {
+            appendResponse(output, `| vulners:\n|   cpe:/a:apache:httpd:2.4.41: \n|     	CVE-2021-41773 7.5 https://vulners.com/cve/CVE-2021-41773`);
+        }
+        if (args.includes('--traceroute')) {
+            appendResponse(output, `TRACEROUTE (using port 80/tcp)\nHOP RTT     ADDRESS\n1   2.10 ms 192.168.1.1\n2   ...`);
+        }
     }
-    if (args.includes('--traceroute')) {
-        appendResponse(output, `TRACEROUTE (using port 80/tcp)\nHOP RTT     ADDRESS\n1   2.10 ms 192.168.1.1\n2   ...`);
-    }
-}
 
-appendResponse(output, `Nmap done: ${options.targets.length} IP addresses (${options.targets.length} hosts up) scanned in ${Math.random().toFixed(2)} seconds`);
+    appendResponse(output, `Nmap done: ${options.targets.length} IP addresses (${options.targets.length} hosts up) scanned in ${Math.random().toFixed(2)} seconds`);
 }
 
 // Global Activity Logger for Real Events
