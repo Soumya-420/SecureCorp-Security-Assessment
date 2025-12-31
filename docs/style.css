@@ -10,6 +10,10 @@
     --font-display: 'Orbitron', sans-serif;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -446,4 +450,47 @@ tr:hover {
 .btn-small:hover {
     background: var(--primary-color);
     color: #000;
+}
+
+/* Splash Screen */
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.8s ease-out;
+}
+
+.splash-content {
+    max-width: 600px;
+    padding: 20px;
+    text-align: left;
+}
+
+.logo-large {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#disclaimer-text {
+    font-family: var(--font-mono);
+    color: var(--primary-color);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 150px;
+    white-space: pre-wrap;
+    margin-bottom: 30px;
+}
+
+#enterBtn.hidden {
+    opacity: 0;
+    pointer-events: none;
 }

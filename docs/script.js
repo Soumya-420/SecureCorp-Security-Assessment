@@ -253,7 +253,19 @@ if (typeof SecurityDB === 'undefined') {
     document.head.appendChild(script);
 }
 
-// === TERMINAL ANIMATION ===
+// === SPLASH SCREEN & TERMINAL ANIMATION ===
+const disclaimerText = `WARNING: AUTHORIZED ACCESS ONLY
+
+This system is protected by advanced cryptographic protocols. 
+Unauthorized access, network scanning, or penetration testing is strictly prohibited and tracked.
+
+By entering this system, you agree to:
+1. Ethical Hacking Guidelines
+2. Non-Disclosure of System Architecture
+3. Full Activity Logging
+
+INITIATING SECURE HANDSHAKE...`;
+
 const terminalLogs = [
     "INITIALIZING SECURECORP KERNEL v4.0...",
     "> LOADING MODULES: [ NET_SEC, CRYPTO, INTEL ]",
@@ -265,29 +277,61 @@ const terminalLogs = [
     "SYSTEM READY. WAITING FOR INPUT..."
 ];
 
-async function typeText(text, element) {
-    const line = document.createElement('div');
-    line.className = 'terminal-line';
-    element.appendChild(line);
-
+async function typeText(text, element, speed = 30) {
     for (let i = 0; i < text.length; i++) {
-        line.textContent += text.charAt(i);
-        await new Promise(r => setTimeout(r, 20 + Math.random() * 30));
+        element.textContent += text.charAt(i);
+        await new Promise(r => setTimeout(r, speed));
     }
 }
 
+async function typeLines(lines, element) {
+    element.innerHTML = '';
+    for (const log of lines) {
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        element.appendChild(line);
+        await typeText(log, line, 10 + Math.random() * 20);
+        await new Promise(r => setTimeout(r, 100));
+        element.scrollTop = element.scrollHeight;
+    }
+}
+
+async function runSplashSequence() {
+    const splash = document.getElementById('splash-screen');
+    const disclaimerObj = document.getElementById('disclaimer-text');
+    const enterBtn = document.getElementById('enterBtn');
+
+    // Check if valid session exists
+    if (sessionStorage.getItem('visited')) {
+        splash.style.display = 'none';
+        runTerminalSequence();
+        return;
+    }
+
+    // Type Disclaimer
+    await typeText(disclaimerText, disclaimerObj, 25);
+    await new Promise(r => setTimeout(r, 500));
+
+    // Show Button
+    enterBtn.classList.remove('hidden');
+}
+
+window.enterSite = function () {
+    const splash = document.getElementById('splash-screen');
+    splash.style.opacity = '0';
+    setTimeout(() => {
+        splash.style.display = 'none';
+        sessionStorage.setItem('visited', 'true');
+        runTerminalSequence();
+    }, 800);
+}
+
+// Terminal Animation (Original, now called after splash)
 async function runTerminalSequence() {
     const output = document.getElementById('terminalOutput');
     if (!output) return;
-
-    output.innerHTML = '';
-
-    for (const log of terminalLogs) {
-        await typeText(log, output);
-        await new Promise(r => setTimeout(r, 300));
-        output.scrollTop = output.scrollHeight;
-    }
+    await typeLines(terminalLogs, output);
 }
 
-// Start animation when page loads
-window.addEventListener('load', runTerminalSequence);
+// Start sequence on load
+window.addEventListener('load', runSplashSequence);
