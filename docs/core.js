@@ -404,7 +404,7 @@ async function handleCommand(cmd) {
 
     switch (lowerCmd) {
         case 'help':
-            response = "AVAILABLE COMMANDS: help, clear, scan [target], date, whoami, status, login, reboot, capture";
+            response = "AVAILABLE COMMANDS: help, clear, scan [target], nmap [target], date, whoami, status, login, reboot, capture";
             break;
         case 'clear':
             output.innerHTML = '';
@@ -429,49 +429,65 @@ async function handleCommand(cmd) {
             response = "SYSTEM INTEGRITY: 100% | THREAT LEVEL: LOW | ENCRYPTION: AES-256";
             break;
         case 'scan':
+        case 'nmap':
             if (!isAuthenticated) {
                 document.getElementById('authModal').style.display = 'block';
                 response = "⛔ ACCESS DENIED: Security Clearance Required for Active Scanning.\n[!] Please login to authorize this action.";
-                appendResponse(output, response, false); // False = red/white, error style
+                appendResponse(output, response, false);
                 return;
             }
 
             if (args.length > 0) {
-                const target = args[0];
-                appendResponse(output, `INITIATING REAL-TIME INTELLIGENCE SCAN ON ${target}...`);
+                // Filter out flags to find target
+                const target = args.find(arg => !arg.startsWith('-'));
+
+                if (!target) {
+                    response = "Usage: nmap <options> <target>";
+                    appendResponse(output, response);
+                    return;
+                }
+
+                appendResponse(output, `Starting Nmap 7.94 ( https://nmap.org ) at ${new Date().toTimeString().split(' ')[0]}`);
+                appendResponse(output, `Nmap scan report for ${target}`);
+                appendResponse(output, `Host is up (0.00${Math.floor(Math.random() * 9)}s latency).`);
 
                 try {
-                    // Check if IP or Domain
                     const isIp = /^[0-9.]+$|^[a-fA-F0-9:]+$/.test(target);
                     let intel = "";
 
                     if (isIp) {
                         // IP Scan
-                        appendResponse(output, `[+] TARGET TYPE: IP ADDRESS\n[+] FETCHING GEOLOCATION...`);
+                        appendResponse(output, `[+] FETCHING WHOIS DATA...`);
                         const res = await fetch(`https://ipapi.co/${target}/json/`);
                         const data = await res.json();
                         intel = `
-[ TARGET INTELLIGENCE ]
-> IP:       ${data.ip}
-> CITY:     ${data.city}, ${data.region}
-> COUNTRY:  ${data.country_name}
-> ISP:      ${data.org}
-> ASN:      ${data.asn}
+PORT      STATE SERVICE
+22/tcp    open  ssh
+80/tcp    open  http
+443/tcp   open  https
+| whois-data: 
+|   Netname: ${data.org}
+|   Country: ${data.country_name}
+|   City:    ${data.city}
+|_  Origin:  ${data.asn}
                         `.trim();
                     } else {
                         // Domain Scan
-                        appendResponse(output, `[+] TARGET TYPE: DOMAIN NAME\n[+] RESOLVING DNS RECORDS...`);
+                        appendResponse(output, `[+] RESOLVING DNS...`);
                         const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${target}&type=A`, {
                             headers: { 'Accept': 'application/dns-json' }
                         });
                         const data = await res.json();
                         if (data.Answer) {
-                            const ips = data.Answer.map(rec => rec.data).join(', ');
+                            const ips = data.Answer.map(rec => rec.data).join('\n|   ');
                             intel = `
-[ DNS RESOLUTION ]
-> HOST:     ${target}
-> STATUS:   ${data.Status === 0 ? 'NOERROR' : 'ERROR'}
-> A RECORDS: ${ips}
+PORT      STATE SERVICE
+80/tcp    open  http
+443/tcp   open  https
+| dns-records: 
+|   Host: ${target}
+|   Status: ${data.Status === 0 ? 'NOERROR' : 'ERROR'}
+|_  Addresses: \n|   ${ips}
                             `.trim();
                         } else {
                             intel = `[-] DNS QUERY FAILED: No A Records Found.`;
@@ -479,12 +495,13 @@ async function handleCommand(cmd) {
                     }
                     response = intel;
                 } catch (e) {
-                    response = `[-] SCAN ERROR: ${e.message}\n(Ensure target is valid and CORS is allowed)`;
+                    response = `[-] NETWORK ERROR: ${e.message}`;
                 }
                 appendResponse(output, response, true);
+                appendResponse(output, `Nmap done: 1 IP address (1 host up) scanned in ${Math.random().toFixed(2)} seconds`);
                 return;
             } else {
-                response = "Usage: scan <target_ip_or_domain>";
+                response = "Usage: nmap <target_ip_or_domain>";
             }
             break;
         case 'login':
