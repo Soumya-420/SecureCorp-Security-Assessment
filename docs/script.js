@@ -297,21 +297,30 @@ async function typeLines(lines, element) {
 }
 
 async function runSplashSequence() {
+    console.log("Splash sequence started");
     const splash = document.getElementById('splash-screen');
     const disclaimerObj = document.getElementById('disclaimer-text');
     const enterBtn = document.getElementById('enterBtn');
 
+    if (!splash || !disclaimerObj || !enterBtn) {
+        console.error("Splash elements missing!");
+        return;
+    }
+
     // Check if valid session exists
     if (sessionStorage.getItem('visited')) {
+        console.log("Session exists, skipping splash");
         splash.style.display = 'none';
         runTerminalSequence();
         return;
     }
 
+    console.log("Typing disclaimer...");
     // Type Disclaimer
     await typeText(disclaimerText, disclaimerObj, 25);
     await new Promise(r => setTimeout(r, 500));
 
+    console.log("Showing button");
     // Show Button
     enterBtn.classList.remove('hidden');
 }
