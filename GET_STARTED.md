@@ -11,6 +11,19 @@ Your security assessment project has been initialized and is ready to use!
 - ✅ Python dependencies installed
 - ✅ Documentation available
 - ✅ Assessment scripts ready
+- ✅ One-Click Demo script ready
+
+## 🚀 Instant Demo (Start Here)
+
+If you want to quickly see the tools in action **without setup**, run the demo script:
+
+### Windows (PowerShell)
+```powershell
+.\run_simple_demo.ps1
+```
+> This will verify your environment and run a live reconnaissance simulation against `example.com`.
+
+---
 
 ## Immediate Next Steps
 
