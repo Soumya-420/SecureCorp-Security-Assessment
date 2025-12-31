@@ -560,6 +560,7 @@ let currentModId = null;
 
 window.showModuleDetails = async function (id) {
     const data = moduleData[id];
+    console.log("Showing details for:", id, data); // Debug Log
     if (!data) return;
 
     currentModId = id;
