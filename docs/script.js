@@ -252,3 +252,42 @@ if (typeof SecurityDB === 'undefined') {
     script.src = 'database.js';
     document.head.appendChild(script);
 }
+
+// === TERMINAL ANIMATION ===
+const terminalLogs = [
+    "INITIALIZING SECURECORP KERNEL v4.0...",
+    "> LOADING MODULES: [ NET_SEC, CRYPTO, INTEL ]",
+    "> CHECKING INTEGRITY... [OK]",
+    "> ESTABLISHING SECURE CONNECTION...",
+    "> BYPASSING FIREWALL... [SUCCESS]",
+    "ACCESS GRANTED.",
+    "WELCOME, AGENT.",
+    "SYSTEM READY. WAITING FOR INPUT..."
+];
+
+async function typeText(text, element) {
+    const line = document.createElement('div');
+    line.className = 'terminal-line';
+    element.appendChild(line);
+
+    for (let i = 0; i < text.length; i++) {
+        line.textContent += text.charAt(i);
+        await new Promise(r => setTimeout(r, 20 + Math.random() * 30));
+    }
+}
+
+async function runTerminalSequence() {
+    const output = document.getElementById('terminalOutput');
+    if (!output) return;
+
+    output.innerHTML = '';
+
+    for (const log of terminalLogs) {
+        await typeText(log, output);
+        await new Promise(r => setTimeout(r, 300));
+        output.scrollTop = output.scrollHeight;
+    }
+}
+
+// Start animation when page loads
+window.addEventListener('load', runTerminalSequence);
