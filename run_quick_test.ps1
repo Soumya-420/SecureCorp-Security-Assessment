@@ -7,15 +7,9 @@ Write-Host "Quick Test & Status Check" -ForegroundColor Green
 Write-Host "========================================`n" -ForegroundColor Cyan
 
 # Navigate to project directory
-$projectPath = "C:\Users\soumy\SecureCorp-Security-Assessment"
-if (Test-Path $projectPath) {
-    Set-Location $projectPath
-    Write-Host "[✓] Project directory found" -ForegroundColor Green
-    Write-Host "    Location: $(Get-Location)`n"
-} else {
-    Write-Host "[!] Project directory not found at: $projectPath" -ForegroundColor Red
-    exit 1
-}
+$projectPath = (Get-Location).Path
+Write-Host "[✓] Project directory found" -ForegroundColor Green
+Write-Host "    Location: $projectPath`n"
 
 # Check Python
 Write-Host "[*] Checking Python..." -ForegroundColor Yellow
