@@ -40,7 +40,7 @@ window.addEventListener('resize', initMatrix);
 // === UI NAVIGATION LOGIC ===
 function showSection(sectionId) {
     // Only handle dynamic sections that are hidden by default
-    const dynamicSections = ['scanInput', 'database'];
+    const dynamicSections = ['scanInput', 'database', 'privacy'];
 
     // If it's a dynamic section, show it
     if (dynamicSections.includes(sectionId)) {
@@ -93,15 +93,10 @@ function authCheck() {
 
 function closeModal() { document.getElementById('authModal').style.display = 'none'; }
 function closeSignUp() { document.getElementById('signUpModal').style.display = 'none'; }
-function closePrivacy() { document.getElementById('privacyModal').style.display = 'none'; }
 
 function showSignUp() {
     closeModal();
     document.getElementById('signUpModal').style.display = 'block';
-}
-
-function showPrivacy() {
-    document.getElementById('privacyModal').style.display = 'block';
 }
 
 // Login Handler
