@@ -1,39 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SecureCorp | Defense Systems</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Orbitron:wght@400;700;900&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <canvas id="matrixCanvas"></canvas>
-    
+
     <div class="overlay"></div>
 
     <header>
         <div class="logo">SECURE<span class="highlight">CORP</span></div>
         <nav>
-            <a href="#overview">SYSTEM</a>
-            <a href="#modules">MODULES</a>
-            <a href="#terminal">TERMINAL</a>
-            <a href="https://github.com/Soumya-420/SecureCorp-Security-Assessment" target="_blank" class="btn-primary">GITHUB_REPO</a>
+            <a href="#overview" onclick="showSection('hero')">SYSTEM</a>
+            <a href="#modules" onclick="showSection('modules')">MODULES</a>
+            <a href="#terminal" onclick="showSection('terminal')">TERMINAL</a>
+            <a href="#" id="dbLink" class="locked" onclick="authCheck()">DATABASE 🔒</a>
+            <a href="https://github.com/Soumya-420/SecureCorp-Security-Assessment" target="_blank"
+                class="btn-primary">GITHUB_REPO</a>
         </nav>
     </header>
 
     <main>
-        <section class="hero">
+        <!-- Auth Modal -->
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2><span class="highlight">AUTHORIZED PERSONNEL ONLY</span></h2>
+                <p>Enter credentials to access the vulnerability database.</p>
+                <form id="loginForm">
+                    <input type="text" id="username" placeholder="Agent ID" required>
+                    <input type="password" id="password" placeholder="Access Code" required>
+                    <button type="submit" class="btn-hack">AUTHENTICATE</button>
+                    <p id="loginMsg" class="error"></p>
+                </form>
+            </div>
+        </div>
+
+        <section id="hero" class="hero">
             <div class="hero-content">
                 <div class="status-badge">
                     <span class="blink">●</span> SYSTEM STATUS: ONLINE
                 </div>
                 <h1 class="glitch" data-text="ADVANCED SECURITY PROTOCOLS">ADVANCED SECURITY PROTOCOLS</h1>
-                <p>Comprehensive vulnerability assessment and penetration testing framework for enterprise infrastructure.</p>
+                <p>Comprehensive vulnerability assessment and penetration testing framework for enterprise
+                    infrastructure.</p>
                 <div class="cta-group">
-                    <a href="#terminal" class="btn-hack">INITIALIZE_DEMO</a>
-                    <a href="#modules" class="btn-outline">VIEW_MODULES</a>
+                    <a href="#new-scan" onclick="showSection('scanInput')" class="btn-hack">START_NEW_SCAN</a>
+                    <a href="#modules" onclick="showSection('modules')" class="btn-outline">VIEW_MODULES</a>
                 </div>
+            </div>
+        </section>
+
+        <!-- New Scan Input Section -->
+        <section id="scanInput" class="container hidden">
+            <h2>// INITIATE NEW ASSESSMENT</h2>
+            <div class="form-box">
+                <form id="scanForm">
+                    <div class="input-group">
+                        <label>TARGET SYSTEM (IP/DOMAIN)</label>
+                        <input type="text" id="targetInput" placeholder="e.g. 192.168.1.1 or example.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label>ASSESSMENT TYPE</label>
+                        <select id="scanType">
+                            <option value="Reconnaissance">Reconnaissance (Passive)</option>
+                            <option value="VulnScan">Vulnerability Scan (Active)</option>
+                            <option value="FullPenTest">Full Penetration Test</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>PRIORITY LEVEL</label>
+                        <select id="scanPriority">
+                            <option value="Low">Low (Stealth)</option>
+                            <option value="High">High (Aggressive)</option>
+                            <option value="Critical">Critical (Immediate)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-hack">RUN_ANALYSIS & SAVE</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Secure Database Section (Hidden until Auth) -->
+        <section id="database" class="container hidden">
+            <div class="db-header">
+                <h2>// VULNERABILITY DATABASE_</h2>
+                <button onclick="logout()" class="btn-outline red-border">LOGOUT</button>
+            </div>
+
+            <div class="terminal-window db-window">
+                <table id="dbTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>TIMESTAMP</th>
+                            <th>TARGET</th>
+                            <th>TYPE</th>
+                            <th>STATUS</th>
+                            <th>FINDINGS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dbBody">
+                        <!-- JS renders rows here -->
+                    </tbody>
+                </table>
             </div>
         </section>
 
@@ -83,4 +161,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>
