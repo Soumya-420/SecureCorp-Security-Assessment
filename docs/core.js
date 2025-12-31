@@ -535,34 +535,31 @@ PORT      STATE SERVICE
             } else {
                 response = "Usage: capture <filename>";
             }
-    } else {
-        response = "Usage: capture <filename>";
-    }
-    break;
+            break;
         case 'apt-get':
         case 'install':
-    if (args.length > 0) {
-        if (args[0] === 'install') {
-            const pkg = args[1];
-            if (!pkg) {
-                response = "Usage: apt-get install <package_name>";
+            if (args.length > 0) {
+                if (args[0] === 'install') {
+                    const pkg = args[1];
+                    if (!pkg) {
+                        response = "Usage: apt-get install <package_name>";
+                    } else {
+                        response = `Reading package lists... Done\nBuilding dependency tree... Done\nReading state information... Done\n\nPackage '${pkg}' is being installed...\n[####################] 100%\n\n${pkg} is now installed.`;
+                    }
+                } else {
+                    response = "Usage: apt-get install <package_name>";
+                }
             } else {
-                response = `Reading package lists... Done\nBuilding dependency tree... Done\nReading state information... Done\n\nPackage '${pkg}' is being installed...\n[####################] 100%\n\n${pkg} is now installed.`;
+                response = "Usage: apt-get install <package_name>";
             }
-        } else {
-            response = "Usage: apt-get install <package_name>";
-        }
-    } else {
-        response = "Usage: apt-get install <package_name>";
-    }
-    break;
+            break;
         case '':
-    return;
+            return;
         default:
-    response = `COMMAND NOT FOUND: ${cmd}. Type 'help' for available commands.`;
-}
+            response = `COMMAND NOT FOUND: ${cmd}. Type 'help' for available commands.`;
+    }
 
-appendResponse(output, response);
+    appendResponse(output, response);
 }
 
 function appendResponse(container, text, isResult = false) {
