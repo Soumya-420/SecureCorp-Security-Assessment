@@ -669,9 +669,10 @@ async function executeNmap(args, output) {
 
         let tableContent = "";
         portsToShow.forEach(p => {
-            const state = (Math.random() > 0.3) ? 'open  ' : 'closed';
-            // User requested to show closed ports too, so we removed the filter:
-            // if (state === 'closed' && options.ports === 'default') return; 
+            // Randomize state: 50% open/closed for better demo visibility
+            const state = (Math.random() > 0.5) ? 'open  ' : 'closed';
+
+            // Logic: Always show the port, regardless of state
 
             let service = 'unknown';
             let version = '';
