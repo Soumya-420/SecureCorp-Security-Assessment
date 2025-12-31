@@ -70,6 +70,34 @@
             </div>
         </div>
 
+        <!-- Privacy Protocol Modal -->
+        <div id="privacyModal" class="modal">
+            <div class="modal-content" style="max-width: 600px; text-align: left;">
+                <span class="close" onclick="closePrivacy()">&times;</span>
+                <h2 style="text-align: center;"><span class="highlight">PRIVACY PROTOCOL</span></h2>
+                <div style="margin-top: 20px; font-size: 14px; color: #a0a0a0;">
+                    <p><strong style="color: var(--primary-color);">1. DATA ENCRYPTION</strong><br>
+                        All user data and scan results are encrypted using AES-256 standards before local storage. No
+                        data is transmitted to external servers without explicit user command.</p>
+
+                    <p><strong style="color: var(--primary-color);">2. NO-LOG POLICY</strong><br>
+                        SecureCorp does not maintain persistent logs of user activity beyond the active session.
+                        Terminal history is cleared upon page reload.</p>
+
+                    <p><strong style="color: var(--primary-color);">3. ETHICAL USE</strong><br>
+                        This tool is provided for educational and authorized security assessment purposes only. The user
+                        assumes full responsibility for any actions taken against target systems.</p>
+
+                    <p><strong style="color: var(--primary-color);">4. SYSTEM INTEGRITY</strong><br>
+                        Cookies are used solely for session management and "visited" state tracking to enhance user
+                        experience.</p>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn-hack" onclick="closePrivacy()">ACKNOWLEDGE</button>
+                </div>
+            </div>
+        </div>
+
         <section id="hero" class="hero">
             <div class="hero-content">
                 <div class="status-badge">
@@ -200,7 +228,8 @@
     </main>
 
     <footer>
-        <p>SECURECORP SYSTEMS © 2025 | <a href="#">ACCESS_LOGS</a> | <a href="#">PRIVACY_PROTOCOL</a></p>
+        <p>SECURECORP SYSTEMS © 2025 | <a href="#">ACCESS_LOGS</a> | <a href="#"
+                onclick="showPrivacy()">PRIVACY_PROTOCOL</a></p>
     </footer>
 
     <script src="database.js"></script>

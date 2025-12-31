@@ -93,10 +93,15 @@ function authCheck() {
 
 function closeModal() { document.getElementById('authModal').style.display = 'none'; }
 function closeSignUp() { document.getElementById('signUpModal').style.display = 'none'; }
+function closePrivacy() { document.getElementById('privacyModal').style.display = 'none'; }
 
 function showSignUp() {
     closeModal();
     document.getElementById('signUpModal').style.display = 'block';
+}
+
+function showPrivacy() {
+    document.getElementById('privacyModal').style.display = 'block';
 }
 
 // Login Handler
