@@ -9,7 +9,7 @@
 
 ## 🌐 [**LAUNCH LIVE SYSTEM**](https://soumya-420.github.io/SecureCorp-Security-Assessment/)
 **(Best viewed on Desktop for full Terminal experience)**
-
+https://soumya-420.github.io/SecureCorp-Security-Assessment/
 ---
 
 ## 🖥️ System Capabilities
