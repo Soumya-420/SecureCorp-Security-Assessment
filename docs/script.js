@@ -40,7 +40,7 @@ window.addEventListener('resize', initMatrix);
 // === UI NAVIGATION LOGIC ===
 function showSection(sectionId) {
     // Only handle dynamic sections that are hidden by default
-    const dynamicSections = ['scanInput', 'database', 'privacy'];
+    const dynamicSections = ['scanInput', 'database', 'privacy', 'accessLogs'];
 
     // If it's a dynamic section, show it
     if (dynamicSections.includes(sectionId)) {
@@ -448,6 +448,37 @@ function handleCommand(cmd) {
 
     // Auto scroll
     document.getElementById('terminalOutput').scrollTop = document.getElementById('terminalOutput').scrollHeight;
+}
+
+// === ACCESS LOGS ===
+window.renderAccessLogs = function () {
+    const logBody = document.getElementById('accessLogsBody');
+    if (!logBody) return;
+
+    logBody.innerHTML = '';
+    const logs = [
+        `[${new Date().toISOString()}] SYSTEM_INIT: Secure Core Loaded`,
+        `[${new Date().toISOString()}] AUTH_CHECK: User 'Guest' connected`,
+        `[${new Date().toISOString()}] SECURITY_SCAN: No active threats detected`,
+        `[${new Date().toISOString()}] ENCRYPTION: AES-256 handshake complete`
+    ];
+
+    // Add some random historical logs
+    for (let i = 0; i < 5; i++) {
+        const time = new Date(Date.now() - Math.random() * 10000000).toISOString();
+        logs.push(`[${time}] SYSTEM_AUDIT: Integrity Check Passed`);
+    }
+
+    logs.sort().reverse(); // Newest first
+
+    logs.forEach(log => {
+        const div = document.createElement('div');
+        div.textContent = log;
+        div.style.marginBottom = '5px';
+        div.style.borderBottom = '1px dashed #333';
+        div.style.paddingBottom = '2px';
+        logBody.appendChild(div);
+    });
 }
 
 // Start sequence on load
