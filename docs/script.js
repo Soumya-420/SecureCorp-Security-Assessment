@@ -596,15 +596,54 @@ window.fetchModuleArgs = function () {
     btn.disabled = true;
     btn.innerHTML = "⌛ DOWNLOADING...";
 
+    // Simulate network delay
     setTimeout(() => {
         btn.innerHTML = "✅ DOWNLOAD COMPLETE";
         btn.style.borderColor = "#00ff41";
 
-        // Simulate file capture in terminal
-        handleCommand(`capture ${data.file}`);
+        // Generate Dummy File Content
+        const content = `
+SECURECORP DEFENSE SYSTEMS
+MODULE SPECIFICATION DOCUMENT
+================================
+MODULE: ${data.title}
+FILE:   ${data.file}
+DATE:   ${new Date().toISOString()}
+================================
+
+[ TECHNICAL MANIFEST ]
+> ALGORITHM: AES-256-GCM
+> COMPLIANCE: ISO/IEC 27001
+> VERSION: v4.5.2-stable
+
+[ CAPABILITIES ]
+${data.points.join('\n')}
+
+[ USAGE INSTRUCTION ]
+Run this module via terminal using:
+> scan --module ${currentModId} <target_ip>
+
+--------------------------------
+CONFIDENTIAL - DO NOT DISTRIBUTE
+        `.trim();
+
+        // Trigger Download
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = data.file.replace('.pdf', '.txt').replace('.json', '.txt').replace('.bin', '.txt'); // Ensure text format for demo
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        // Terminal Feedback
+        handleCommand(`capture ${a.download}`);
 
         setTimeout(() => {
             btn.style.borderColor = "";
+            btn.innerHTML = `⬇ FETCH ${data.file.split('_')[0]}_DOCS`; // Reset text
             btn.disabled = false;
         }, 3000);
     }, 1500);
