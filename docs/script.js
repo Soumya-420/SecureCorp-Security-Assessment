@@ -356,8 +356,98 @@ window.enterSite = function () {
 // Terminal Animation (Original, now called after splash)
 async function runTerminalSequence() {
     const output = document.getElementById('terminalOutput');
+    const inputLine = document.querySelector('.terminal-input-line');
+
+    // Temporarily hide input during init sequence
+    if (inputLine) inputLine.style.display = 'none';
+
     if (!output) return;
-    await typeLines(terminalLogs, output);
+
+    // Create specific container for logs if not exists (to keep input at bottom)
+    let logContainer = document.getElementById('terminalLogs');
+    if (!logContainer) {
+        logContainer = document.createElement('div');
+        logContainer.id = 'terminalLogs';
+        output.insertBefore(logContainer, inputLine); // Insert before input
+    }
+
+    await typeLines(terminalLogs, logContainer);
+
+    // Show input after sequence
+    if (inputLine) {
+        inputLine.style.display = 'flex';
+        document.getElementById('terminalInput').focus();
+    }
+}
+
+// === INTERACTIVE TERMINAL ===
+const termInput = document.getElementById('terminalInput');
+if (termInput) {
+    termInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            const cmd = this.value.trim();
+            this.value = '';
+            handleCommand(cmd);
+        }
+    });
+}
+
+function handleCommand(cmd) {
+    const output = document.getElementById('terminalLogs') || document.getElementById('terminalOutput');
+    const line = document.createElement('div');
+    line.innerHTML = `<span style="color: #008F11">root@securecorp:~#</span> ${cmd}`;
+    output.appendChild(line);
+
+    let response = '';
+    const lowerCmd = cmd.toLowerCase().split(' ')[0];
+    const args = cmd.split(' ').slice(1);
+
+    switch (lowerCmd) {
+        case 'help':
+            response = "AVAILABLE COMMANDS: help, clear, scan [target], date, whoami, status, login, reboot";
+            break;
+        case 'clear':
+            output.innerHTML = '';
+            return; // Exit early
+        case 'date':
+            response = new Date().toString();
+            break;
+        case 'whoami':
+            response = currentUser ? `Agent: ${currentUser} (Level 4 Clearance)` : "root (Unverified)";
+            break;
+        case 'status':
+            response = "SYSTEM INTEGRITY: 100% | THREAT LEVEL: LOW | ENCRYPTION: AES-256";
+            break;
+        case 'scan':
+            if (args.length > 0) {
+                const target = args[0];
+                response = `INITIATING DEEP SCAN ON ${target}...\n[+] Resolving host...\n[+] Checking ports...\n[!] VULNERABILITY DETECTED: CVE-2024-XXXX`;
+            } else {
+                response = "Usage: scan <target_ip_or_domain>";
+            }
+            break;
+        case 'login':
+            document.getElementById('authModal').style.display = 'block';
+            response = "Launching Authentication Protocol...";
+            break;
+        case 'reboot':
+            location.reload();
+            break;
+        case '':
+            return;
+        default:
+            response = `COMMAND NOT FOUND: ${cmd}. Type 'help' for available commands.`;
+    }
+
+    const respLine = document.createElement('div');
+    respLine.style.color = '#e0e0e0';
+    respLine.style.marginBottom = '10px';
+    respLine.style.whiteSpace = 'pre-wrap';
+    respLine.textContent = response;
+    output.appendChild(respLine);
+
+    // Auto scroll
+    document.getElementById('terminalOutput').scrollTop = document.getElementById('terminalOutput').scrollHeight;
 }
 
 // Start sequence on load

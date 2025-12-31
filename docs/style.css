@@ -243,6 +243,31 @@ p {
     font-size: 14px;
 }
 
+.terminal-input-line {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.prompt {
+    color: var(--secondary-color);
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+#terminalInput {
+    background: transparent;
+    border: none;
+    color: var(--primary-color);
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+}
+
 /* Modules Grid */
 .modules-grid {
     display: grid;
