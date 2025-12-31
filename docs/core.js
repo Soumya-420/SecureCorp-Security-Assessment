@@ -447,133 +447,51 @@ async function handleCommand(cmd) {
                 return;
             }
 
-            if (args.length > 0) {
-                // Filter out flags to find target
-                const target = args.find(arg => !arg.startsWith('-'));
-
-                if (!target) {
-                    response = "Usage: nmap <options> <target>";
-                    appendResponse(output, response);
-                    return;
-                }
-
-                appendResponse(output, `Starting Nmap 7.94 ( https://nmap.org ) at ${new Date().toTimeString().split(' ')[0]}`);
-
-                // Flag Simulation
-                // Flag Simulation - Comprehensive
-                if (args.includes('-O')) appendResponse(output, `[+] Enabling OS Detection...`);
-                if (args.includes('-A')) appendResponse(output, `[+] Enabling OS detection, version detection, script scanning, and traceroute...`);
-                if (args.includes('-sS')) appendResponse(output, `[+] Initiating SYN Stealth Scan...`);
-                if (args.includes('-sT')) appendResponse(output, `[+] Initiating TCP Connect Scan...`);
-                if (args.includes('-sU')) appendResponse(output, `[+] Initiating UDP Scan (Warning: This may be slow)...`);
-                if (args.includes('-sA')) appendResponse(output, `[+] Initiating ACP Scan (Mapping firewall sets)...`);
-                if (args.includes('-sW')) appendResponse(output, `[+] Initiating Window Scan...`);
-                if (args.includes('-sM')) appendResponse(output, `[+] Initiating Maimon Scan...`);
-                if (args.includes('-sN')) appendResponse(output, `[+] Initiating TCP Null Scan...`);
-                if (args.includes('-sF')) appendResponse(output, `[+] Initiating TCP FIN Scan...`);
-                if (args.includes('-sX')) appendResponse(output, `[+] Initiating Xmas Scan (Urgent/Push/Fin)...`);
-                if (args.includes('-sI')) appendResponse(output, `[+] Initiating Idle Scan (Zombie Host)...`);
-                if (args.includes('-sY')) appendResponse(output, `[+] Initiating SCTP INIT Scan...`);
-                if (args.includes('-sZ')) appendResponse(output, `[+] Initiating SCTP COOKIE-ECHO Scan...`);
-                if (args.includes('-p')) appendResponse(output, `[+] Scanning specified ports...`);
-
-                appendResponse(output, `Nmap scan report for ${target}`);
-                appendResponse(output, `Host is up (0.00${Math.floor(Math.random() * 9)}s latency).`);
-
-                try {
-                    const isIp = /^[0-9.]+$|^[a-fA-F0-9:]+$/.test(target);
-                    let intel = "";
-
-                    if (isIp) {
-                        // IP Scan
-                        appendResponse(output, `[+] FETCHING WHOIS DATA...`);
-                        const res = await fetch(`https://ipapi.co/${target}/json/`);
-                        const data = await res.json();
-                        intel = `
-PORT      STATE SERVICE
-22/tcp    open  ssh
-80/tcp    open  http
-443/tcp   open  https
-| whois-data: 
-|   Netname: ${data.org}
-|   Country: ${data.country_name}
-|   City:    ${data.city}
-|_  Origin:  ${data.asn}
-                        `.trim();
-                    } else {
-                        // Domain Scan
-                        appendResponse(output, `[+] RESOLVING DNS...`);
-                        const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${target}&type=A`, {
-                            headers: { 'Accept': 'application/dns-json' }
-                        });
-                        const data = await res.json();
-                        if (data.Answer) {
-                            const ips = data.Answer.map(rec => rec.data).join('\n|   ');
-                            intel = `
-PORT      STATE SERVICE
-80/tcp    open  http
-443/tcp   open  https
-| dns-records: 
-|   Host: ${target}
-|   Status: ${data.Status === 0 ? 'NOERROR' : 'ERROR'}
-|_  Addresses: \n|   ${ips}
-                            `.trim();
-                            // Log Real Activity
-                            logActivity(`DNS_QUERY: Resolved ${target} -> ${data.Answer[0].data} [TTL=${data.Answer[0].TTL}]`);
-                        } else {
-                            intel = `[-] DNS QUERY FAILED: No A Records Found.`;
-                        }
-                    }
-                    response = intel;
-                } catch (e) {
-                    response = `[-] NETWORK ERROR: ${e.message}`;
-                }
-                appendResponse(output, response, true);
-                appendResponse(output, `Nmap done: 1 IP address (1 host up) scanned in ${Math.random().toFixed(2)} seconds`);
-                return;
-            } else {
-                response = "Usage: nmap <target_ip_or_domain>";
-            }
-            break;
+            executeNmap(args, output);
+            return;
+    } else {
+        response = "Usage: nmap <options> <target>";
+    }
+    break;
         case 'login':
-            document.getElementById('authModal').style.display = 'block';
-            response = "Launching Authentication Protocol...";
-            break;
+    document.getElementById('authModal').style.display = 'block';
+    response = "Launching Authentication Protocol...";
+    break;
         case 'reboot':
-            location.reload();
-            break;
+    location.reload();
+    break;
         case 'capture':
-            if (args.length > 0) {
-                const file = args[0];
-                response = `[+] CAPTURING ARTIFACT: ${file}...\n[+] VERIFYING CHECKSUM... [OK]\n[+] SAVED TO LOCAL STORAGE.`;
-            } else {
-                response = "Usage: capture <filename>";
-            }
-            break;
+    if (args.length > 0) {
+        const file = args[0];
+        response = `[+] CAPTURING ARTIFACT: ${file}...\n[+] VERIFYING CHECKSUM... [OK]\n[+] SAVED TO LOCAL STORAGE.`;
+    } else {
+        response = "Usage: capture <filename>";
+    }
+    break;
         case 'apt-get':
         case 'install':
-            if (args.length > 0) {
-                if (args[0] === 'install') {
-                    const pkg = args[1];
-                    if (!pkg) {
-                        response = "Usage: apt-get install <package_name>";
-                    } else {
-                        response = `Reading package lists... Done\nBuilding dependency tree... Done\nReading state information... Done\n\nPackage '${pkg}' is being installed...\n[####################] 100%\n\n${pkg} is now installed.`;
-                    }
-                } else {
-                    response = "Usage: apt-get install <package_name>";
-                }
-            } else {
+    if (args.length > 0) {
+        if (args[0] === 'install') {
+            const pkg = args[1];
+            if (!pkg) {
                 response = "Usage: apt-get install <package_name>";
+            } else {
+                response = `Reading package lists... Done\nBuilding dependency tree... Done\nReading state information... Done\n\nPackage '${pkg}' is being installed...\n[####################] 100%\n\n${pkg} is now installed.`;
             }
-            break;
-        case '':
-            return;
-        default:
-            response = `COMMAND NOT FOUND: ${cmd}. Type 'help' for available commands.`;
+        } else {
+            response = "Usage: apt-get install <package_name>";
+        }
+    } else {
+        response = "Usage: apt-get install <package_name>";
     }
+    break;
+        case '':
+    return;
+        default:
+    response = `COMMAND NOT FOUND: ${cmd}. Type 'help' for available commands.`;
+}
 
-    appendResponse(output, response);
+appendResponse(output, response);
 }
 
 function appendResponse(container, text, isResult = false) {
@@ -615,6 +533,161 @@ window.renderAccessLogs = function () {
         div.style.paddingBottom = '2px';
         logBody.appendChild(div);
     });
+}
+
+// === ADVANCED NMAP LOGIC ===
+async function executeNmap(args, output) {
+    // 1. Parse Arguments (Handle flags with values)
+    const options = {
+        scanFlags: [],
+        version: false,
+        os: false,
+        agg: false,
+        ports: 'default',
+        targets: [],
+        script: null
+    };
+
+    // Argument Parser
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        if (arg.startsWith('-')) {
+            // Bool Flags
+            if (['-sS', '-sT', '-sU', '-sA', '-sW', '-sM', '-sN', '-sF', '-sX', '-sI', '-sY', '-sZ', '-Pn', '--traceroute'].includes(arg)) {
+                options.scanFlags.push(arg);
+            }
+            if (arg === '-O' || arg === '--osscan-guess') options.os = true;
+            if (arg === '-sV' || arg === '--version-all') options.version = true;
+            if (arg === '-A') { options.os = true; options.version = true; options.agg = true; }
+
+            // Value Flags
+            if (arg === '-p' && args[i + 1]) { options.ports = args[i + 1]; i++; }
+            if (arg === '--script' && args[i + 1]) { options.script = args[i + 1]; i++; }
+            if (arg === '-iL' && args[i + 1]) {
+                appendResponse(output, `[+] Reading targets from ${args[i + 1]}...`);
+                options.targets.push("192.168.1.10"); // Sim from file
+                options.targets.push("192.168.1.11");
+                i++;
+            }
+        } else {
+            // CIDR / Range Parsing Simulation
+            if (arg.includes('/')) {
+                // CIDR
+                options.targets.push(arg.split('/')[0]); // Just scan base
+                options.targets.push(arg.split('/')[0].replace(/\d+$/, '254')); // And one more
+            } else if (arg.includes('-')) {
+                // Range
+                const parts = arg.split('-');
+                options.targets.push(parts[0]);
+            } else {
+                options.targets.push(arg);
+            }
+        }
+    }
+
+    if (options.targets.length === 0 && options.scanFlags.length === 0) {
+        appendResponse(output, "nmap: No target specified. Try -h.");
+        return;
+    }
+
+    // Help/Ver
+    if (args.includes('-h') || args.includes('--help')) {
+        appendResponse(output, "Nmap 7.94 ( https://nmap.org )\nUsage: nmap [Scan Type(s)] [Options] {target specification}");
+        return;
+    }
+
+    // Execution
+    appendResponse(output, `Starting Nmap 7.94 ( https://nmap.org ) at ${new Date().toISOString().replace('T', ' ').split('.')[0]}`);
+
+    // Status Lines
+    options.scanFlags.forEach(flag => {
+        const map = {
+            '-sS': 'SYN Stealth Scan', '-sT': 'TCP Connect Scan', '-sU': 'UDP Scan',
+            '-sX': 'Xmas Scan', '-sF': 'FIN Scan', '-sN': 'Null Scan',
+            '-sI': 'Idle Scan'
+        };
+        if (map[flag]) appendResponse(output, `[+] Initiating ${map[flag]}...`);
+    });
+
+    if (options.os) appendResponse(output, `[+] Enabling OS Detection...`);
+    if (options.version) appendResponse(output, `[+] Enabling Version Detection...`);
+    if (options.script) appendResponse(output, `[+] NSE: Loaded 146 scripts for scanning.`);
+
+    // Loop Targets
+    for (const target of options.targets) {
+        if (options.targets.length > 1) await new Promise(r => setTimeout(r, 800)); // Delay between multiple
+
+        // Handle Real Data Fetch
+        let ip = target;
+        let hostname = target;
+        let findings = [];
+
+        try {
+            const isIp = /^[0-9.]+$|^[a-fA-F0-9:]+$/.test(target);
+            if (isIp && !target.startsWith('192.168')) {
+                // Real IP
+                const res = await fetch(`https://ipapi.co/${target}/json/`);
+                const data = await res.json();
+                hostname = data.org || "Unknown";
+            } else if (!target.startsWith('192.168')) {
+                // Real DNS
+                const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${target}&type=A`, {
+                    headers: { 'Accept': 'application/dns-json' }
+                });
+                const data = await res.json();
+                if (data.Answer) ip = data.Answer[0].data;
+                logActivity(`DNS_QUERY: Resolved ${target} -> ${ip}`);
+            }
+        } catch (e) { /* Ignore fetch errors for cleaner output */ }
+
+        appendResponse(output, `Nmap scan report for ${target} (${ip})`);
+        appendResponse(output, `Host is up (0.00${Math.floor(Math.random() * 9)}s latency).`);
+        if (options.targets.length > 1) appendResponse(output, `[+] Processing ${target}...`);
+
+        // Generate Port Table based on Flags
+        let tableHeader = "PORT      STATE SERVICE";
+        if (options.version) tableHeader += "    VERSION";
+
+        // Dynamic Ports based on -p
+        let portsToShow = [22, 80, 443, 8080];
+        if (options.ports !== 'default') {
+            if (options.ports === '80') portsToShow = [80];
+            if (options.ports.includes(',')) portsToShow = options.ports.split(',').map(Number);
+            if (options.ports === '-') portsToShow = [21, 22, 23, 25, 53, 80, 110, 139, 443, 445, 3306, 3389, 8080]; // Top ports
+        }
+
+        let tableContent = "";
+        portsToShow.forEach(p => {
+            const state = (Math.random() > 0.2) ? 'open  ' : 'closed';
+            if (state === 'closed' && options.ports === 'default') return; // Hide closed by default
+
+            let service = 'unknown';
+            let version = '';
+            if (p === 22) { service = 'ssh   '; version = 'OpenSSH 8.2p1'; }
+            if (p === 80) { service = 'http  '; version = 'Apache httpd 2.4.41'; }
+            if (p === 443) { service = 'https '; version = 'nginx 1.18.0'; }
+            if (p === 53) { service = 'domain'; version = 'ISC BIND 9.16.1'; }
+
+            let line = `${p}/tcp`.padEnd(10) + state + " " + service;
+            if (options.version && state.includes('open')) line += "   " + version;
+            tableContent += line + "\n";
+        });
+
+        if (tableContent === "") tableContent = "All 1000 scanned ports on " + target + " are filtered\n";
+
+        appendResponse(output, tableHeader + "\n" + tableContent.trim());
+
+        // Extra details
+        if (options.os) appendResponse(output, `OS details: Linux 4.15 - 5.6 (95%)`);
+        if (options.script && options.script.includes('vuln')) {
+            appendResponse(output, `| vulners:\n|   cpe:/a:apache:httpd:2.4.41: \n|     	CVE-2021-41773 7.5 https://vulners.com/cve/CVE-2021-41773`);
+        }
+        if (args.includes('--traceroute')) {
+            appendResponse(output, `TRACEROUTE (using port 80/tcp)\nHOP RTT     ADDRESS\n1   2.10 ms 192.168.1.1\n2   ...`);
+        }
+    }
+
+    appendResponse(output, `Nmap done: ${options.targets.length} IP addresses (${options.targets.length} hosts up) scanned in ${Math.random().toFixed(2)} seconds`);
 }
 
 // Global Activity Logger for Real Events
