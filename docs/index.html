@@ -179,25 +179,61 @@
         </section>
 
         <section id="modules" class="modules-grid">
-            <div class="card">
+            <div class="card" onclick="showModuleDetails('recon')">
                 <div class="icon">🔍</div>
                 <h3>Reconnaissance</h3>
                 <p>Network discovery, DNS enumeration, and target mapping.</p>
             </div>
-            <div class="card">
+            <div class="card" onclick="showModuleDetails('vuln')">
                 <div class="icon">🛡️</div>
                 <h3>Vulnerability Scan</h3>
                 <p>Automated identification of CVEs and system weaknesses.</p>
             </div>
-            <div class="card">
+            <div class="card" onclick="showModuleDetails('web')">
                 <div class="icon">🕸️</div>
                 <h3>Web Security</h3>
                 <p>Full-stack assessment including SQLi, XSS, and CSRF testing.</p>
             </div>
-            <div class="card">
+            <div class="card" onclick="showModuleDetails('auth')">
                 <div class="icon">🔓</div>
                 <h3>Password Auditing</h3>
                 <p>Hash analysis and dictionary attack simulations.</p>
+            </div>
+        </section>
+
+        <!-- Dynamic Module Details Section -->
+        <section id="moduleDetails" class="container hidden">
+            <h2 id="modTitle">// MODULE_DETAILS</h2>
+            <div class="form-box"
+                style="max-width: 800px; display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: start;">
+
+                <!-- Pictorial / ASCII View -->
+                <div class="ascii-art-container">
+                    <pre id="modAscii"
+                        style="font-size: 10px; line-height: 10px; color: var(--primary-color); text-shadow: 0 0 5px var(--primary-color);">
+<!-- JS Injects ASCII Here -->
+                    </pre>
+                </div>
+
+                <!-- Details & Animation -->
+                <div class="mod-content">
+                    <h3 id="modName"
+                        style="color: #fff; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px;">
+                    </h3>
+
+                    <div id="modPoints"
+                        style="margin-bottom: 20px; font-family: 'Fira Code', monospace; color: #a0a0a0;">
+                        <!-- JS Types List Here -->
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <button id="fetchBtn" class="btn-hack" onclick="fetchModuleArgs()">⬇ DOWNLOAD_SPECS</button>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn-outline red-border"
+                    onclick="document.getElementById('moduleDetails').classList.add('hidden')">CLOSE_DETAILS</button>
             </div>
         </section>
         <section id="privacy" class="container hidden">

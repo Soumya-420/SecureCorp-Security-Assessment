@@ -40,7 +40,7 @@ window.addEventListener('resize', initMatrix);
 // === UI NAVIGATION LOGIC ===
 function showSection(sectionId) {
     // Only handle dynamic sections that are hidden by default
-    const dynamicSections = ['scanInput', 'database', 'privacy', 'accessLogs'];
+    const dynamicSections = ['scanInput', 'database', 'privacy', 'accessLogs', 'moduleDetails'];
 
     // If it's a dynamic section, show it
     if (dynamicSections.includes(sectionId)) {
@@ -480,6 +480,134 @@ window.renderAccessLogs = function () {
         logBody.appendChild(div);
     });
 }
+
+// === MODULE DETAILS & ANIMATION ===
+const moduleData = {
+    'recon': {
+        title: 'RECONNAISSANCE_UNIT',
+        ascii: `
+    .       .
+    |\\_---_/|
+   /   o_o   \\
+  |    (_)    | 
+   \\   ---   /
+    |/  |  \\|
+        `,
+        points: [
+            "> MAPPING NETWORK TOPOLOGY...",
+            "> IDENTIFYING OPERATING SYSTEMS (OS FINGERPRINTING)",
+            "> HARVESTING DNS RECORDS & SUBDOMAINS",
+            "> ANALYZING OPEN PORTS & SERVICES"
+        ],
+        file: "NetMap_Global_Extraction.pdf"
+    },
+    'vuln': {
+        title: 'VULNERABILITY_SCANNER',
+        ascii: `
+      .--.
+     /    \\
+    |  !!  |
+     \\    /
+      '--'
+    [TARGET]
+        `,
+        points: [
+            "> CROSS-REFERENCING NIST CVE DATABASE",
+            "> DETECTING UNPATCHED SERVICES",
+            "> CALCULATING CVSS RISK SCORES",
+            "> VERIFYING PATCH INTEGRITY"
+        ],
+        file: "CVE_Critical_Report.json"
+    },
+    'web': {
+        title: 'WEB_SECURITY_AUDIT',
+        ascii: `
+   _______
+  /       \\
+ |  LOCK   |
+ |   [#]   |
+  \\_______/
+     | |
+        `,
+        points: [
+            "> INJECTING SQL PAYLOADS (SQLi TEST)",
+            "> FUZZING API ENDPOINTS FOR INPUT VALIDATION",
+            "> SIMULATING XSS & CSRF ATTACKS",
+            "> CHECKING SSL/TLS CONFIGURATION"
+        ],
+        file: "Payload_Injection_List.txt"
+    },
+    'auth': {
+        title: 'AUTH_CRACKER_SUITE',
+        ascii: `
+  [#####]
+  | 123 |
+  | 456 |
+  | 789 |
+  |_*0_#|
+        `,
+        points: [
+            "> PERFORMING DICTIONARY ATTACKS",
+            "> HASH COLLISION ANALYSIS (RAINBOW TABLES)",
+            "> TESTING MULTI-FACTOR BYPASS",
+            "> AUDITING PASSWORD COMPLEXITY POLICIES"
+        ],
+        file: "Hash_Analysis_Dump.bin"
+    }
+};
+
+let currentModId = null;
+
+window.showModuleDetails = async function (id) {
+    const data = moduleData[id];
+    if (!data) return;
+
+    currentModId = id;
+    showSection('moduleDetails');
+
+    document.getElementById('modName').textContent = data.title;
+    document.getElementById('modAscii').textContent = data.ascii;
+    document.getElementById('fetchBtn').innerHTML = `⬇ FETCH ${data.file.split('_')[0]}_DOCS`;
+    document.getElementById('fetchBtn').disabled = false;
+
+    // Animate Points
+    const container = document.getElementById('modPoints');
+    container.innerHTML = ''; // Clear previous
+
+    for (const point of data.points) {
+        const p = document.createElement('div');
+        p.style.marginBottom = '8px';
+        p.style.opacity = '0'; // Start hidden
+        p.style.color = '#fff';
+        container.appendChild(p);
+
+        // Typing effect for list
+        p.style.opacity = '1';
+        await typeText(point, p, 15);
+        await new Promise(r => setTimeout(r, 200));
+    }
+};
+
+window.fetchModuleArgs = function () {
+    const btn = document.getElementById('fetchBtn');
+    const data = moduleData[currentModId];
+
+    btn.disabled = true;
+    btn.innerHTML = "⌛ DOWNLOADING...";
+
+    setTimeout(() => {
+        btn.innerHTML = "✅ DOWNLOAD COMPLETE";
+        btn.style.borderColor = "#00ff41";
+
+        // Simulate file capture in terminal
+        handleCommand(`capture ${data.file}`);
+
+        setTimeout(() => {
+            btn.style.borderColor = "";
+            btn.disabled = false;
+        }, 3000);
+    }, 1500);
+};
 
 // Start sequence on load
 window.addEventListener('load', runSplashSequence);
