@@ -29,16 +29,20 @@ window.addEventListener('resize', () => { canvas.width = window.innerWidth; canv
 
 
 // === UI NAVIGATION LOGIC ===
+// === UI NAVIGATION LOGIC ===
 function showSection(sectionId) {
-    // Hide all main sections
-    ['hero', 'scanInput', 'database', 'modules', 'terminal'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
-    });
+    // Only handle dynamic sections that are hidden by default
+    const dynamicSections = ['scanInput', 'database'];
 
-    // Show requested
-    const target = document.getElementById(sectionId);
-    if (target) target.classList.remove('hidden');
+    // If it's a dynamic section, show it
+    if (dynamicSections.includes(sectionId)) {
+        const target = document.getElementById(sectionId);
+        if (target) {
+            target.classList.remove('hidden');
+            target.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+    // Note: Main sections (hero, modules, terminal) are always visible now for scrolling
 }
 
 // === AUTHENTICATION SYSTEM ===
@@ -136,7 +140,13 @@ function logout() {
     document.getElementById('dbLink').innerHTML = 'DATABASE 🔒';
     document.getElementById('dbLink').classList.add('locked');
     document.getElementById('dbLink').style.color = '';
-    showSection('hero');
+
+    // Hide database section and scroll to top
+    document.getElementById('database').classList.add('hidden');
+    document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
+
+    // Optional: Hide scan input if open
+    document.getElementById('scanInput').classList.add('hidden');
 }
 
 
