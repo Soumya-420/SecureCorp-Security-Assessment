@@ -490,7 +490,59 @@ tr:hover {
     margin-bottom: 30px;
 }
 
-#enterBtn.hidden {
-    opacity: 0;
-    pointer-events: none;
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .logo {
+        margin-bottom: 15px;
+    }
+
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    nav a {
+        margin: 0;
+        font-size: 12px;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .cta-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-hack,
+    .btn-outline {
+        width: 100%;
+        text-align: center;
+    }
+
+    .modules-grid {
+        padding: 30px 5%;
+        gap: 20px;
+    }
+
+    .terminal-section {
+        padding: 20px;
+    }
+
+    #splash-screen .logo-large {
+        font-size: 2rem;
+    }
 }

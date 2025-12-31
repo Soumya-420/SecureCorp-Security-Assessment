@@ -7,10 +7,18 @@ canvas.height = window.innerHeight;
 
 const characters = 'abcdefghijklmnopqrstuvwxyz0123456789@#$%^&*';
 const fontSize = 14;
-const columns = canvas.width / fontSize;
-const drops = [];
+let columns = canvas.width / fontSize;
+let drops = [];
 
-for (let i = 0; i < columns; i++) { drops[i] = 1; }
+function initMatrix() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    columns = canvas.width / fontSize;
+    drops = [];
+    for (let i = 0; i < columns; i++) { drops[i] = 1; }
+}
+
+initMatrix();
 
 function drawMatrix() {
     ctx.fillStyle = 'rgba(5, 5, 5, 0.05)';
@@ -25,7 +33,7 @@ function drawMatrix() {
     }
 }
 setInterval(drawMatrix, 33);
-window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+window.addEventListener('resize', initMatrix);
 
 
 // === UI NAVIGATION LOGIC ===
