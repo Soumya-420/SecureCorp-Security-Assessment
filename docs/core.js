@@ -847,6 +847,11 @@ SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES`
             let line = `${p}/tcp`.padEnd(10) + state + " " + service;
             if (options.version && state.includes('open')) line += "   " + version;
             tableContent += line + "\n";
+
+            // Verbose Output: Show discovery as it happens
+            if (options.verbose > 0 && state.includes('open')) {
+                appendResponse(output, `Discovered open port ${p}/tcp on ${target}`);
+            }
         });
 
         if (tableContent === "") tableContent = "All 1000 scanned ports on " + target + " are filtered\n";
