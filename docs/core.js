@@ -532,202 +532,234 @@ window.renderAccessLogs = function () {
 }
 
 // === ADVANCED NMAP LOGIC ===
-async function executeNmap(args, output) {
-    // 1. Parse Arguments (Handle flags with values)
-    const options = {
-        scanFlags: [],
-        version: false,
-        os: false,
-        agg: false,
-        ports: 'default',
-        targets: [],
-        script: null
-    };
+// 0. Pre-checks for Help/Version (Must be first)
+if (args.includes('-V')) {
+    appendResponse(output, "Nmap version 7.94 ( https://nmap.org )");
+    return;
+}
+if (args.includes('-h') || args.includes('--help')) {
+    appendResponse(output, "Nmap 7.94 ( https://nmap.org )\nUsage: nmap [Scan Type(s)] [Options] {target specification}\n\nFLAGS:\n  -oN/-oX/-oG <file>: Output scan in normal, XML, or grepable format\n  -v, -vv: Increase verbosity level\n  -d, -dd: Increase debugging level");
+    return;
+}
 
-    // Argument Parser
-    for (let i = 0; i < args.length; i++) {
-        const arg = args[i];
-        if (arg.startsWith('-')) {
-            // Timing Templates (Check FIRST to avoid conflicts)
-            if (/^-T[0-5]$/.test(arg)) {
-                options.timing = parseInt(arg.replace('-T', ''));
-                const tNames = ['Paranoid', 'Sneaky', 'Polite', 'Normal', 'Aggressive', 'Insane'];
-                appendResponse(output, `[+] Timing template set to ${arg} (${tNames[options.timing]})`);
-                continue; // Skip other checks for this arg
-            }
+// 1. Parse Arguments (Handle flags with values)
+const options = {
+    scanFlags: [],
+    version: false,
+    os: false,
+    agg: false,
+    ports: 'default',
+    targets: [],
+    script: null,
+    verbose: 0,
+    debug: 0,
+    outputFile: null
+};
 
-            // Bool Flags
-            if (['-sS', '-sT', '-sU', '-sA', '-sW', '-sM', '-sN', '-sF', '-sX', '-sI', '-sY', '-sZ', '-Pn', '--traceroute'].includes(arg)) {
-                options.scanFlags.push(arg);
-            }
-            if (arg === '-O' || arg === '--osscan-guess') options.os = true;
-            if (arg === '-sV' || arg === '--version-all') options.version = true;
-            if (arg === '-A') { options.os = true; options.version = true; options.agg = true; }
+// Argument Parser
+for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg.startsWith('-')) {
+        // Verbosity & Debugging
+        if (arg === '-v') options.verbose = 1;
+        if (arg === '-vv') options.verbose = 2;
+        if (arg === '-d') options.debug = 1;
+        if (arg === '-dd') options.debug = 2;
 
-            // Value Flags
-            if (arg === '-p' && args[i + 1]) { options.ports = args[i + 1]; i++; }
-            if (arg === '--script' && args[i + 1]) { options.script = args[i + 1]; i++; }
-            if (arg === '-iL' && args[i + 1]) {
-                appendResponse(output, `[+] Reading targets from ${args[i + 1]}...`);
-                options.targets.push("192.168.1.10"); // Sim from file
-                options.targets.push("192.168.1.11");
-                i++;
-            }
-            // Timing Templates
-            if (/^-T[0-5]$/.test(arg)) {
-                options.timing = parseInt(arg.replace('-T', ''));
-                const tNames = ['Paranoid', 'Sneaky', 'Polite', 'Normal', 'Aggressive', 'Insane'];
-                appendResponse(output, `[+] Timing template set to ${arg} (${tNames[options.timing]})`);
-            }
-        } else {
-            // CIDR / Range Parsing Simulation
-            if (arg.includes('/')) {
-                // CIDR
-                options.targets.push(arg.split('/')[0]); // Just scan base
-                options.targets.push(arg.split('/')[0].replace(/\d+$/, '254')); // And one more
-            } else if (arg.includes('-') && !arg.startsWith('-')) {
-                // Range: 192.168.1.1-50
-                const [start, endStr] = arg.split('-');
-                const end = parseInt(endStr);
-                if (start.match(/^\d+\.\d+\.\d+\.\d+$/) && !isNaN(end)) {
-                    const parts = start.split('.').map(Number);
-                    const lastOctet = parts[3];
-                    // Add sequence
-                    for (let k = lastOctet; k <= end; k++) {
-                        options.targets.push(`${parts[0]}.${parts[1]}.${parts[2]}.${k}`);
-                    }
-                } else {
-                    // Fallback for domains with dashes
-                    options.targets.push(arg);
+        // Output Formats
+        if (['-oN', '-oX', '-oG', '-oA'].includes(arg) && args[i + 1]) {
+            const format = arg.replace('-o', '');
+            appendResponse(output, `[+] Output will be saved to ${args[i + 1]} (${format === 'A' ? 'All formats' : format + ' format'})`);
+            options.outputFile = args[i + 1];
+            i++;
+        }
+
+        // Timing Templates (Check FIRST to avoid conflicts)
+        if (/^-T[0-5]$/.test(arg)) {
+            options.timing = parseInt(arg.replace('-T', ''));
+            const tNames = ['Paranoid', 'Sneaky', 'Polite', 'Normal', 'Aggressive', 'Insane'];
+            appendResponse(output, `[+] Timing template set to ${arg} (${tNames[options.timing]})`);
+            continue; // Skip other checks for this arg
+        }
+
+        // Bool Flags
+        if (['-sS', '-sT', '-sU', '-sA', '-sW', '-sM', '-sN', '-sF', '-sX', '-sI', '-sY', '-sZ', '-Pn', '--traceroute'].includes(arg)) {
+            options.scanFlags.push(arg);
+        }
+        if (arg === '-O' || arg === '--osscan-guess') options.os = true;
+        if (arg === '-sV' || arg === '--version-all') options.version = true;
+        if (arg === '-A') { options.os = true; options.version = true; options.agg = true; }
+
+        // Value Flags
+        if (arg === '-p' && args[i + 1]) { options.ports = args[i + 1]; i++; }
+        if (arg === '--script' && args[i + 1]) { options.script = args[i + 1]; i++; }
+        if (arg === '-iL' && args[i + 1]) {
+            appendResponse(output, `[+] Reading targets from ${args[i + 1]}...`);
+            options.targets.push("192.168.1.10"); // Sim from file
+            options.targets.push("192.168.1.11");
+            i++;
+        }
+        // Timing Templates
+        if (/^-T[0-5]$/.test(arg)) {
+            options.timing = parseInt(arg.replace('-T', ''));
+            const tNames = ['Paranoid', 'Sneaky', 'Polite', 'Normal', 'Aggressive', 'Insane'];
+            appendResponse(output, `[+] Timing template set to ${arg} (${tNames[options.timing]})`);
+        }
+    } else {
+        // CIDR / Range Parsing Simulation
+        if (arg.includes('/')) {
+            // CIDR
+            options.targets.push(arg.split('/')[0]); // Just scan base
+            options.targets.push(arg.split('/')[0].replace(/\d+$/, '254')); // And one more
+        } else if (arg.includes('-') && !arg.startsWith('-')) {
+            // Range: 192.168.1.1-50
+            const [start, endStr] = arg.split('-');
+            const end = parseInt(endStr);
+            if (start.match(/^\d+\.\d+\.\d+\.\d+$/) && !isNaN(end)) {
+                const parts = start.split('.').map(Number);
+                const lastOctet = parts[3];
+                // Add sequence
+                for (let k = lastOctet; k <= end; k++) {
+                    options.targets.push(`${parts[0]}.${parts[1]}.${parts[2]}.${k}`);
                 }
             } else {
+                // Fallback for domains with dashes
                 options.targets.push(arg);
             }
+        } else {
+            options.targets.push(arg);
         }
     }
+}
 
-    if (options.targets.length === 0 && options.scanFlags.length === 0) {
-        appendResponse(output, "nmap: No target specified. Try -h.");
-        return;
+if (options.targets.length === 0 && options.scanFlags.length === 0) {
+    appendResponse(output, "nmap: No target specified. Try -h.");
+    return;
+}
+
+// Help/Ver
+if (args.includes('-V')) {
+    appendResponse(output, "Nmap version 7.94 ( https://nmap.org )");
+    return;
+}
+if (args.includes('-h') || args.includes('--help')) {
+    appendResponse(output, "Nmap 7.94 ( https://nmap.org )\nUsage: nmap [Scan Type(s)] [Options] {target specification}");
+    return;
+}
+
+// Execution
+appendResponse(output, `Starting Nmap 7.94 ( https://nmap.org ) at ${new Date().toISOString().replace('T', ' ').split('.')[0]}`);
+
+// Status Lines
+// Status Lines
+options.scanFlags.forEach(flag => {
+    const map = {
+        '-sS': 'SYN Stealth Scan', '-sT': 'TCP Connect Scan', '-sU': 'UDP Scan',
+        '-sX': 'Xmas Scan', '-sF': 'FIN Scan', '-sN': 'Null Scan',
+        '-sI': 'Idle Scan', '-Pn': 'No Ping / Host Discovery Disabled'
+    };
+    if (map[flag]) appendResponse(output, `[+] Initiating ${map[flag]}...`);
+});
+
+// Verbose/Debug Output Simulation
+if (options.verbose > 0) appendResponse(output, `[v] Verbosity Level: ${options.verbose}`);
+if (options.debug > 0) appendResponse(output, `[d] Debug Level: ${options.debug}`);
+if (options.verbose > 1) appendResponse(output, `[vv] Detailed scan info enabled.`);
+if (options.debug > 0) appendResponse(output, `[d] Packet tracing enabled.`);
+
+if (options.os) appendResponse(output, `[+] Enabling OS Detection...`);
+if (options.version) appendResponse(output, `[+] Enabling Version Detection...`);
+if (options.script) appendResponse(output, `[+] NSE: Loaded 146 scripts for scanning.`);
+
+// Loop Targets
+for (const target of options.targets) {
+    // Delay Logic based on Timing
+    let delay = 800; // T3 (Normal)
+    if (options.timing !== undefined) {
+        if (options.timing === 0) delay = 2000;
+        if (options.timing === 1) delay = 1500;
+        if (options.timing === 2) delay = 1000;
+        if (options.timing === 4) delay = 500;
+        if (options.timing === 5) delay = 100;
+    }
+    // Adaptive override for large ranges unless specific T set
+    if (options.targets.length > 5 && options.timing === undefined) delay = 150;
+
+    if (options.targets.length > 1) await new Promise(r => setTimeout(r, delay)); // Delay between multiple
+
+    // Handle Real Data Fetch
+    let ip = target;
+    let hostname = target;
+    let findings = [];
+
+    try {
+        const isIp = /^[0-9.]+$|^[a-fA-F0-9:]+$/.test(target);
+        if (isIp && !target.startsWith('192.168')) {
+            // Real IP
+            const res = await fetch(`https://ipapi.co/${target}/json/`);
+            const data = await res.json();
+            hostname = data.org || "Unknown";
+        } else if (!target.startsWith('192.168')) {
+            // Real DNS
+            const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${target}&type=A`, {
+                headers: { 'Accept': 'application/dns-json' }
+            });
+            const data = await res.json();
+            if (data.Answer) ip = data.Answer[0].data;
+            logActivity(`DNS_QUERY: Resolved ${target} -> ${ip}`);
+        }
+    } catch (e) { /* Ignore fetch errors for cleaner output */ }
+
+    appendResponse(output, `Nmap scan report for ${target} (${ip})`);
+    appendResponse(output, `Host is up (0.00${Math.floor(Math.random() * 9)}s latency).`);
+    if (options.targets.length > 1) appendResponse(output, `[+] Processing ${target}...`);
+
+    // Generate Port Table based on Flags
+    let tableHeader = "PORT      STATE SERVICE";
+    if (options.version) tableHeader += "    VERSION";
+
+    // Dynamic Ports based on -p
+    let portsToShow = [22, 80, 443, 8080];
+    if (options.ports !== 'default') {
+        if (options.ports === '80') portsToShow = [80];
+        if (options.ports.includes(',')) portsToShow = options.ports.split(',').map(Number);
+        if (options.ports === '-') portsToShow = [21, 22, 23, 25, 53, 80, 110, 139, 443, 445, 3306, 3389, 8080]; // Top ports
     }
 
-    // Help/Ver
-    if (args.includes('-V')) {
-        appendResponse(output, "Nmap version 7.94 ( https://nmap.org )");
-        return;
-    }
-    if (args.includes('-h') || args.includes('--help')) {
-        appendResponse(output, "Nmap 7.94 ( https://nmap.org )\nUsage: nmap [Scan Type(s)] [Options] {target specification}");
-        return;
-    }
+    let tableContent = "";
+    portsToShow.forEach(p => {
+        // Randomize state: 50% open/closed for better demo visibility
+        const state = (Math.random() > 0.5) ? 'open  ' : 'closed';
 
-    // Execution
-    appendResponse(output, `Starting Nmap 7.94 ( https://nmap.org ) at ${new Date().toISOString().replace('T', ' ').split('.')[0]}`);
+        // Logic: Always show the port, regardless of state
 
-    // Status Lines
-    // Status Lines
-    options.scanFlags.forEach(flag => {
-        const map = {
-            '-sS': 'SYN Stealth Scan', '-sT': 'TCP Connect Scan', '-sU': 'UDP Scan',
-            '-sX': 'Xmas Scan', '-sF': 'FIN Scan', '-sN': 'Null Scan',
-            '-sI': 'Idle Scan', '-Pn': 'No Ping / Host Discovery Disabled'
-        };
-        if (map[flag]) appendResponse(output, `[+] Initiating ${map[flag]}...`);
+        let service = 'unknown';
+        let version = '';
+        if (p === 22) { service = 'ssh   '; version = 'OpenSSH 8.2p1'; }
+        if (p === 80) { service = 'http  '; version = 'Apache httpd 2.4.41'; }
+        if (p === 443) { service = 'https '; version = 'nginx 1.18.0'; }
+        if (p === 53) { service = 'domain'; version = 'ISC BIND 9.16.1'; }
+
+        let line = `${p}/tcp`.padEnd(10) + state + " " + service;
+        if (options.version && state.includes('open')) line += "   " + version;
+        tableContent += line + "\n";
     });
 
-    if (options.os) appendResponse(output, `[+] Enabling OS Detection...`);
-    if (options.version) appendResponse(output, `[+] Enabling Version Detection...`);
-    if (options.script) appendResponse(output, `[+] NSE: Loaded 146 scripts for scanning.`);
+    if (tableContent === "") tableContent = "All 1000 scanned ports on " + target + " are filtered\n";
 
-    // Loop Targets
-    for (const target of options.targets) {
-        // Delay Logic based on Timing
-        let delay = 800; // T3 (Normal)
-        if (options.timing !== undefined) {
-            if (options.timing === 0) delay = 2000;
-            if (options.timing === 1) delay = 1500;
-            if (options.timing === 2) delay = 1000;
-            if (options.timing === 4) delay = 500;
-            if (options.timing === 5) delay = 100;
-        }
-        // Adaptive override for large ranges unless specific T set
-        if (options.targets.length > 5 && options.timing === undefined) delay = 150;
+    appendResponse(output, tableHeader + "\n" + tableContent.trim());
 
-        if (options.targets.length > 1) await new Promise(r => setTimeout(r, delay)); // Delay between multiple
-
-        // Handle Real Data Fetch
-        let ip = target;
-        let hostname = target;
-        let findings = [];
-
-        try {
-            const isIp = /^[0-9.]+$|^[a-fA-F0-9:]+$/.test(target);
-            if (isIp && !target.startsWith('192.168')) {
-                // Real IP
-                const res = await fetch(`https://ipapi.co/${target}/json/`);
-                const data = await res.json();
-                hostname = data.org || "Unknown";
-            } else if (!target.startsWith('192.168')) {
-                // Real DNS
-                const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${target}&type=A`, {
-                    headers: { 'Accept': 'application/dns-json' }
-                });
-                const data = await res.json();
-                if (data.Answer) ip = data.Answer[0].data;
-                logActivity(`DNS_QUERY: Resolved ${target} -> ${ip}`);
-            }
-        } catch (e) { /* Ignore fetch errors for cleaner output */ }
-
-        appendResponse(output, `Nmap scan report for ${target} (${ip})`);
-        appendResponse(output, `Host is up (0.00${Math.floor(Math.random() * 9)}s latency).`);
-        if (options.targets.length > 1) appendResponse(output, `[+] Processing ${target}...`);
-
-        // Generate Port Table based on Flags
-        let tableHeader = "PORT      STATE SERVICE";
-        if (options.version) tableHeader += "    VERSION";
-
-        // Dynamic Ports based on -p
-        let portsToShow = [22, 80, 443, 8080];
-        if (options.ports !== 'default') {
-            if (options.ports === '80') portsToShow = [80];
-            if (options.ports.includes(',')) portsToShow = options.ports.split(',').map(Number);
-            if (options.ports === '-') portsToShow = [21, 22, 23, 25, 53, 80, 110, 139, 443, 445, 3306, 3389, 8080]; // Top ports
-        }
-
-        let tableContent = "";
-        portsToShow.forEach(p => {
-            // Randomize state: 50% open/closed for better demo visibility
-            const state = (Math.random() > 0.5) ? 'open  ' : 'closed';
-
-            // Logic: Always show the port, regardless of state
-
-            let service = 'unknown';
-            let version = '';
-            if (p === 22) { service = 'ssh   '; version = 'OpenSSH 8.2p1'; }
-            if (p === 80) { service = 'http  '; version = 'Apache httpd 2.4.41'; }
-            if (p === 443) { service = 'https '; version = 'nginx 1.18.0'; }
-            if (p === 53) { service = 'domain'; version = 'ISC BIND 9.16.1'; }
-
-            let line = `${p}/tcp`.padEnd(10) + state + " " + service;
-            if (options.version && state.includes('open')) line += "   " + version;
-            tableContent += line + "\n";
-        });
-
-        if (tableContent === "") tableContent = "All 1000 scanned ports on " + target + " are filtered\n";
-
-        appendResponse(output, tableHeader + "\n" + tableContent.trim());
-
-        // Extra details
-        if (options.os) appendResponse(output, `OS details: Linux 4.15 - 5.6 (95%)`);
-        if (options.script && options.script.includes('vuln')) {
-            appendResponse(output, `| vulners:\n|   cpe:/a:apache:httpd:2.4.41: \n|     	CVE-2021-41773 7.5 https://vulners.com/cve/CVE-2021-41773`);
-        }
-        if (args.includes('--traceroute')) {
-            appendResponse(output, `TRACEROUTE (using port 80/tcp)\nHOP RTT     ADDRESS\n1   2.10 ms 192.168.1.1\n2   ...`);
-        }
+    // Extra details
+    if (options.os) appendResponse(output, `OS details: Linux 4.15 - 5.6 (95%)`);
+    if (options.script && options.script.includes('vuln')) {
+        appendResponse(output, `| vulners:\n|   cpe:/a:apache:httpd:2.4.41: \n|     	CVE-2021-41773 7.5 https://vulners.com/cve/CVE-2021-41773`);
     }
+    if (args.includes('--traceroute')) {
+        appendResponse(output, `TRACEROUTE (using port 80/tcp)\nHOP RTT     ADDRESS\n1   2.10 ms 192.168.1.1\n2   ...`);
+    }
+}
 
-    appendResponse(output, `Nmap done: ${options.targets.length} IP addresses (${options.targets.length} hosts up) scanned in ${Math.random().toFixed(2)} seconds`);
+appendResponse(output, `Nmap done: ${options.targets.length} IP addresses (${options.targets.length} hosts up) scanned in ${Math.random().toFixed(2)} seconds`);
 }
 
 // Global Activity Logger for Real Events
