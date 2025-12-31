@@ -591,6 +591,10 @@ async function executeNmap(args, output) {
     }
 
     // Help/Ver
+    if (args.includes('-V')) {
+        appendResponse(output, "Nmap version 7.94 ( https://nmap.org )");
+        return;
+    }
     if (args.includes('-h') || args.includes('--help')) {
         appendResponse(output, "Nmap 7.94 ( https://nmap.org )\nUsage: nmap [Scan Type(s)] [Options] {target specification}");
         return;
