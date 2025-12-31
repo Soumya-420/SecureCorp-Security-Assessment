@@ -392,7 +392,7 @@ if (termInput) {
     });
 }
 
-function handleCommand(cmd) {
+async function handleCommand(cmd) {
     const output = document.getElementById('terminalLogs') || document.getElementById('terminalOutput');
     const line = document.createElement('div');
     line.innerHTML = `<span style="color: #008F11">root@securecorp:~#</span> ${cmd}`;
@@ -404,7 +404,7 @@ function handleCommand(cmd) {
 
     switch (lowerCmd) {
         case 'help':
-            response = "AVAILABLE COMMANDS: help, clear, scan [target], date, whoami, status, login, reboot";
+            response = "AVAILABLE COMMANDS: help, clear, scan [target], date, whoami, status, login, reboot, capture";
             break;
         case 'clear':
             output.innerHTML = '';
@@ -413,17 +413,69 @@ function handleCommand(cmd) {
             response = new Date().toString();
             break;
         case 'whoami':
-            response = currentUser ? `Agent: ${currentUser} (Level 4 Clearance)` : "root (Unverified)";
-            break;
+            response = "Identifying agent node...";
+            appendResponse(output, response);
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                response = `[+] PUBLIC NODE IDENTIFIED: ${data.ip}\n[+] AGENT: ${currentUser || 'GUEST_USER'}\n[+] ORG: SECURECORP_REMOTE_ACCESS`;
+            } catch (e) {
+                response = "[-] CONNECTION FAILED: " + e.message;
+            }
+            // Update last line instead of appending new? For simplicity, just append result distinct from status
+            appendResponse(output, response, true);
+            return; // Async handled
         case 'status':
             response = "SYSTEM INTEGRITY: 100% | THREAT LEVEL: LOW | ENCRYPTION: AES-256";
             break;
         case 'scan':
             if (args.length > 0) {
                 const target = args[0];
-                const cve = `CVE-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-                const port = Math.random() > 0.5 ? "443 (HTTPS)" : "80 (HTTP)";
-                response = `INITIATING DEEP SCAN ON ${target}...\n[+] Resolving host... [OK]\n[+] Checking ports... ${port} OPEN\n[!] VULNERABILITY DETECTED: ${cve} (High Severity)\n[+] Payload delivery... [READY]`;
+                appendResponse(output, `INITIATING REAL-TIME INTELLIGENCE SCAN ON ${target}...`);
+
+                try {
+                    // Check if IP or Domain
+                    const isIp = /^[0-9.]+$|^[a-fA-F0-9:]+$/.test(target);
+                    let intel = "";
+
+                    if (isIp) {
+                        // IP Scan
+                        appendResponse(output, `[+] TARGET TYPE: IP ADDRESS\n[+] FETCHING GEOLOCATION...`);
+                        const res = await fetch(`https://ipapi.co/${target}/json/`);
+                        const data = await res.json();
+                        intel = `
+[ TARGET INTELLIGENCE ]
+> IP:       ${data.ip}
+> CITY:     ${data.city}, ${data.region}
+> COUNTRY:  ${data.country_name}
+> ISP:      ${data.org}
+> ASN:      ${data.asn}
+                        `.trim();
+                    } else {
+                        // Domain Scan
+                        appendResponse(output, `[+] TARGET TYPE: DOMAIN NAME\n[+] RESOLVING DNS RECORDS...`);
+                        const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${target}&type=A`, {
+                            headers: { 'Accept': 'application/dns-json' }
+                        });
+                        const data = await res.json();
+                        if (data.Answer) {
+                            const ips = data.Answer.map(rec => rec.data).join(', ');
+                            intel = `
+[ DNS RESOLUTION ]
+> HOST:     ${target}
+> STATUS:   ${data.Status === 0 ? 'NOERROR' : 'ERROR'}
+> A RECORDS: ${ips}
+                            `.trim();
+                        } else {
+                            intel = `[-] DNS QUERY FAILED: No A Records Found.`;
+                        }
+                    }
+                    response = intel;
+                } catch (e) {
+                    response = `[-] SCAN ERROR: ${e.message}\n(Ensure target is valid and CORS is allowed)`;
+                }
+                appendResponse(output, response, true);
+                return;
             } else {
                 response = "Usage: scan <target_ip_or_domain>";
             }
@@ -449,14 +501,16 @@ function handleCommand(cmd) {
             response = `COMMAND NOT FOUND: ${cmd}. Type 'help' for available commands.`;
     }
 
+    appendResponse(output, response);
+}
+
+function appendResponse(container, text, isResult = false) {
     const respLine = document.createElement('div');
-    respLine.style.color = '#e0e0e0';
+    respLine.style.color = isResult ? '#00ff41' : '#e0e0e0';
     respLine.style.marginBottom = '10px';
     respLine.style.whiteSpace = 'pre-wrap';
-    respLine.textContent = response;
-    output.appendChild(respLine);
-
-    // Auto scroll
+    respLine.textContent = text;
+    container.appendChild(respLine);
     document.getElementById('terminalOutput').scrollTop = document.getElementById('terminalOutput').scrollHeight;
 }
 
