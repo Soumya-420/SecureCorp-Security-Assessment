@@ -565,6 +565,12 @@ async function executeNmap(args, output) {
                 options.targets.push("192.168.1.11");
                 i++;
             }
+            // Timing Templates
+            if (/^-T[0-5]$/.test(arg)) {
+                options.timing = parseInt(arg.replace('-T', ''));
+                const tNames = ['Paranoid', 'Sneaky', 'Polite', 'Normal', 'Aggressive', 'Insane'];
+                appendResponse(output, `[+] Timing template set to ${arg} (${tNames[options.timing]})`);
+            }
         } else {
             // CIDR / Range Parsing Simulation
             if (arg.includes('/')) {
@@ -627,7 +633,19 @@ async function executeNmap(args, output) {
 
     // Loop Targets
     for (const target of options.targets) {
-        if (options.targets.length > 1) await new Promise(r => setTimeout(r, 800)); // Delay between multiple
+        // Delay Logic based on Timing
+        let delay = 800; // T3 (Normal)
+        if (options.timing !== undefined) {
+            if (options.timing === 0) delay = 2000;
+            if (options.timing === 1) delay = 1500;
+            if (options.timing === 2) delay = 1000;
+            if (options.timing === 4) delay = 500;
+            if (options.timing === 5) delay = 100;
+        }
+        // Adaptive override for large ranges unless specific T set
+        if (options.targets.length > 5 && options.timing === undefined) delay = 150;
+
+        if (options.targets.length > 1) await new Promise(r => setTimeout(r, delay)); // Delay between multiple
 
         // Handle Real Data Fetch
         let ip = target;
