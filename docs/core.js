@@ -571,10 +571,21 @@ async function executeNmap(args, output) {
                 // CIDR
                 options.targets.push(arg.split('/')[0]); // Just scan base
                 options.targets.push(arg.split('/')[0].replace(/\d+$/, '254')); // And one more
-            } else if (arg.includes('-')) {
-                // Range
-                const parts = arg.split('-');
-                options.targets.push(parts[0]);
+            } else if (arg.includes('-') && !arg.startsWith('-')) {
+                // Range: 192.168.1.1-50
+                const [start, endStr] = arg.split('-');
+                const end = parseInt(endStr);
+                if (start.match(/^\d+\.\d+\.\d+\.\d+$/) && !isNaN(end)) {
+                    const parts = start.split('.').map(Number);
+                    const lastOctet = parts[3];
+                    // Add sequence
+                    for (let k = lastOctet; k <= end; k++) {
+                        options.targets.push(`${parts[0]}.${parts[1]}.${parts[2]}.${k}`);
+                    }
+                } else {
+                    // Fallback for domains with dashes
+                    options.targets.push(arg);
+                }
             } else {
                 options.targets.push(arg);
             }
