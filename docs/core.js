@@ -237,7 +237,7 @@ CONFIDENTIAL - DO NOT DISTRIBUTE
 
 
 // === SCAN FORM HANDLING ===
-document.getElementById('scanForm').addEventListener('submit', function (e) {
+document.getElementById('scanForm').addEventListener('submit', async function (e) {
     if (!isAuthenticated) {
         e.preventDefault();
         alert('AUTHORIZATION REQUIRED. Please Log In.');
@@ -254,11 +254,21 @@ document.getElementById('scanForm').addEventListener('submit', function (e) {
     let modules = Array.from(checkboxes).map(cb => cb.value);
     if (modules.length === 0) modules = ['Standard Scan']; // Default
 
-    // Add to DB
-    const record = db.add({ target: target, type: type, modules: modules });
+    const btn = e.target.querySelector('button');
+    const originalText = btn.innerText;
+    btn.innerText = "OPENING SOCKET...";
+    btn.disabled = true;
 
-    alert(`ASSESSMENT INITIATED: ${record.id}\nTarget: ${target}\nModules: ${modules.join(', ')}`);
+    // Add to DB using Real Async Scan
+    try {
+        const record = await db.addRealScan(target, type, modules);
+        alert(`ASSESSMENT INITIATED: ${record.id}\nTarget: ${target}\nresult: ${record.findings}`);
+    } catch (err) {
+        alert("Scan Failed: " + err.message);
+    }
 
+    btn.innerText = originalText;
+    btn.disabled = false;
     e.target.reset();
     showSection('database');
     renderDB();

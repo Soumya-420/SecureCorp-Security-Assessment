@@ -22,27 +22,58 @@ class SecurityDB {
         return JSON.parse(localStorage.getItem(this.dbName) || '[]');
     }
 
-    add(record) {
+    async addRealScan(target, type, modules) {
+        let findings = "Analyzing...";
+        let status = "PROCESSING";
+
+        try {
+            const isIp = /^[0-9.]+$|^[a-fA-F0-9:]+$/.test(target);
+            if (isIp) {
+                const res = await fetch(`https://ipapi.co/${target}/json/`);
+                const data = await res.json();
+                findings = `IP: ${data.ip} | Loc: ${data.city}, ${data.country_name} | Org: ${data.org}`;
+                status = "COMPLETED";
+            } else {
+                const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${target}&type=A`, {
+                    headers: { 'Accept': 'application/dns-json' }
+                });
+                const data = await res.json();
+                if (data.Answer) {
+                    const ips = data.Answer.map(r => r.data).join(', ');
+                    findings = `Host: ${target} | Resolved: ${ips} | DNS Status: ${data.Status === 0 ? 'NOERROR' : 'ERROR'}`;
+                    status = "COMPLETED";
+                } else {
+                    findings = "DNS Resolution Failed: No Records";
+                    status = "FAILED";
+                }
+            }
+        } catch (e) {
+            findings = "Scan Error: " + e.message;
+            status = "ERROR";
+        }
+
         const data = this.getAll();
         const newRecord = {
             id: 'SC-' + Math.floor(Math.random() * 9000 + 1000),
             time: new Date().toLocaleString(),
-            target: record.target,
-            type: record.type,
-            modules: record.modules || ['Standard Scan'], // Store selected modules
-            status: 'PENDING',
-            findings: 'Initializing scan...'
+            target: target,
+            type: type,
+            modules: modules,
+            status: status,
+            findings: findings
         };
         data.push(newRecord);
         localStorage.setItem(this.dbName, JSON.stringify(data));
 
-        // Simulate processing time then update results
-        setTimeout(() => {
-            const result = this.generateMockFindings(newRecord.target, newRecord.modules);
-            this.updateStatus(newRecord.id, 'COMPLETED', result);
-        }, 4000);
-
+        if (window.renderDB) window.renderDB();
         return newRecord;
+    }
+
+    // Legacy Mock Method (Kept for fallback if needed, but primary is now addRealScan)
+    add(record) {
+        // Redirect to async logic if possible, but this is sync. 
+        // We will update the UI to call addRealScan instead.
+        return this.addRealScan(record.target, record.type, record.modules || ['Standard']);
     }
 
     updateStatus(id, status, findings) {
@@ -52,26 +83,7 @@ class SecurityDB {
             data[index].status = status;
             if (findings) data[index].findings = findings;
             localStorage.setItem(this.dbName, JSON.stringify(data));
-            // Trigger UI update if visible
             if (window.renderDB) window.renderDB();
-        }
-    }
-
-    generateMockFindings(target, modules) {
-        const vulns = [
-            "SQL Injection in /login parameter",
-            "XSS Reflected in search bar",
-            "Open Port 22 (SSH) - Weak Cipher",
-            "Missing Security Headers (HSTS)",
-            "Outdated Apache Version 2.4.49",
-            "Default Credentials (admin/admin)"
-        ];
-
-        // Randomly pick findings based on "complexity"
-        if (modules.includes('All') || modules.length > 3) {
-            return `CRITICAL: ${vulns[Math.floor(Math.random() * 3)]} detected.`;
-        } else {
-            return `INFO: Scan completed. ${Math.floor(Math.random() * 5)} minor issues found.`;
         }
     }
 }
