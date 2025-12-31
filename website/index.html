@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureCorp | Defense Systems</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+    
+    <div class="overlay"></div>
+
+    <header>
+        <div class="logo">SECURE<span class="highlight">CORP</span></div>
+        <nav>
+            <a href="#overview">SYSTEM</a>
+            <a href="#modules">MODULES</a>
+            <a href="#terminal">TERMINAL</a>
+            <a href="https://github.com/Soumya-420/SecureCorp-Security-Assessment" target="_blank" class="btn-primary">GITHUB_REPO</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <div class="status-badge">
+                    <span class="blink">●</span> SYSTEM STATUS: ONLINE
+                </div>
+                <h1 class="glitch" data-text="ADVANCED SECURITY PROTOCOLS">ADVANCED SECURITY PROTOCOLS</h1>
+                <p>Comprehensive vulnerability assessment and penetration testing framework for enterprise infrastructure.</p>
+                <div class="cta-group">
+                    <a href="#terminal" class="btn-hack">INITIALIZE_DEMO</a>
+                    <a href="#modules" class="btn-outline">VIEW_MODULES</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="terminal" class="terminal-section">
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <div class="dots">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <span class="title">root@securecorp:~</span>
+                </div>
+                <div class="terminal-body" id="terminalOutput">
+                    <!-- JS will populate this -->
+                </div>
+            </div>
+        </section>
+
+        <section id="modules" class="modules-grid">
+            <div class="card">
+                <div class="icon">🔍</div>
+                <h3>Reconnaissance</h3>
+                <p>Network discovery, DNS enumeration, and target mapping.</p>
+            </div>
+            <div class="card">
+                <div class="icon">🛡️</div>
+                <h3>Vulnerability Scan</h3>
+                <p>Automated identification of CVEs and system weaknesses.</p>
+            </div>
+            <div class="card">
+                <div class="icon">🕸️</div>
+                <h3>Web Security</h3>
+                <p>Full-stack assessment including SQLi, XSS, and CSRF testing.</p>
+            </div>
+            <div class="card">
+                <div class="icon">🔓</div>
+                <h3>Password Auditing</h3>
+                <p>Hash analysis and dictionary attack simulations.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>SECURECORP SYSTEMS © 2025 | <a href="#">ACCESS_LOGS</a> | <a href="#">PRIVACY_PROTOCOL</a></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
