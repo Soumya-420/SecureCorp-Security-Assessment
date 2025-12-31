@@ -548,6 +548,14 @@ async function executeNmap(args, output) {
     for (let i = 0; i < args.length; i++) {
         const arg = args[i];
         if (arg.startsWith('-')) {
+            // Timing Templates (Check FIRST to avoid conflicts)
+            if (/^-T[0-5]$/.test(arg)) {
+                options.timing = parseInt(arg.replace('-T', ''));
+                const tNames = ['Paranoid', 'Sneaky', 'Polite', 'Normal', 'Aggressive', 'Insane'];
+                appendResponse(output, `[+] Timing template set to ${arg} (${tNames[options.timing]})`);
+                continue; // Skip other checks for this arg
+            }
+
             // Bool Flags
             if (['-sS', '-sT', '-sU', '-sA', '-sW', '-sM', '-sN', '-sF', '-sX', '-sI', '-sY', '-sZ', '-Pn', '--traceroute'].includes(arg)) {
                 options.scanFlags.push(arg);
