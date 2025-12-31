@@ -429,6 +429,13 @@ async function handleCommand(cmd) {
             response = "SYSTEM INTEGRITY: 100% | THREAT LEVEL: LOW | ENCRYPTION: AES-256";
             break;
         case 'scan':
+            if (!isAuthenticated) {
+                document.getElementById('authModal').style.display = 'block';
+                response = "⛔ ACCESS DENIED: Security Clearance Required for Active Scanning.\n[!] Please login to authorize this action.";
+                appendResponse(output, response, false); // False = red/white, error style
+                return;
+            }
+
             if (args.length > 0) {
                 const target = args[0];
                 appendResponse(output, `INITIATING REAL-TIME INTELLIGENCE SCAN ON ${target}...`);
@@ -627,12 +634,8 @@ window.showModuleDetails = async function (id) {
     console.log("Showing details for:", id, data); // Debug Log
     if (!data) return;
 
-    // Security Check
-    if (!isAuthenticated) {
-        alert("⛔ ACCESS DENIED: High-Level Clearance Required.\nPlease login to view classified module details.");
-        authCheck(); // Trigger Login Modal
-        return;
-    }
+    // Security Check REMOVED per user request
+    // if (!isAuthenticated) { ... }
 
     currentModId = id;
     showSection('moduleDetails');
