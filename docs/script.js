@@ -433,6 +433,14 @@ function handleCommand(cmd) {
         case 'reboot':
             location.reload();
             break;
+        case 'capture':
+            if (args.length > 0) {
+                const file = args[0];
+                response = `[+] CAPTURING ARTIFACT: ${file}...\n[+] VERIFYING CHECKSUM... [OK]\n[+] SAVED TO LOCAL STORAGE.`;
+            } else {
+                response = "Usage: capture <filename>";
+            }
+            break;
         case '':
             return;
         default:
