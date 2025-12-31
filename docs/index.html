@@ -23,8 +23,7 @@
             <a href="#modules" onclick="showSection('modules')">MODULES</a>
             <a href="#terminal" onclick="showSection('terminal')">TERMINAL</a>
             <a href="#" id="dbLink" class="locked" onclick="authCheck()">DATABASE 🔒</a>
-            <a href="https://github.com/Soumya-420/SecureCorp-Security-Assessment" target="_blank"
-                class="btn-primary">GITHUB_REPO</a>
+
         </nav>
     </header>
 
@@ -40,6 +39,25 @@
                     <input type="password" id="password" placeholder="Access Code" required>
                     <button type="submit" class="btn-hack">AUTHENTICATE</button>
                     <p id="loginMsg" class="error"></p>
+                    <p style="margin-top: 15px; font-size: 12px; color: #888;">
+                        New Agent? <a href="#" onclick="showSignUp()" style="color: var(--primary-color);">Request
+                            Clearance (Sign Up)</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sign Up Modal -->
+        <div id="signUpModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeSignUp()">&times;</span>
+                <h2><span class="highlight">NEW AGENT REGISTRATION</span></h2>
+                <p>Create a secure profile for assessment access.</p>
+                <form id="signUpForm">
+                    <input type="text" id="newUsername" placeholder="New Agent ID" required>
+                    <input type="password" id="newPassword" placeholder="Set Access Code" required>
+                    <button type="submit" class="btn-hack">REGISTER AGENT</button>
+                    <p id="signUpMsg" class="error"></p>
                 </form>
             </div>
         </div>
@@ -84,6 +102,20 @@
                             <option value="Critical">Critical (Immediate)</option>
                         </select>
                     </div>
+
+                    <div class="input-group">
+                        <label>MANUAL TESTING MODULES</label>
+                        <div class="checkbox-grid">
+                            <label><input type="checkbox" name="modules" value="Port Scan"> Port Scan</label>
+                            <label><input type="checkbox" name="modules" value="DNS Enum"> DNS Enum</label>
+                            <label><input type="checkbox" name="modules" value="SQL Injection"> SQL Injection</label>
+                            <label><input type="checkbox" name="modules" value="XSS Audit"> XSS Audit</label>
+                            <label><input type="checkbox" name="modules" value="Brute Force"> Brute Force</label>
+                            <label><input type="checkbox" name="modules" value="Malware Analysis"> Malware
+                                Analysis</label>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn-hack">RUN_ANALYSIS & SAVE</button>
                 </form>
             </div>
@@ -105,7 +137,7 @@
                             <th>TARGET</th>
                             <th>TYPE</th>
                             <th>STATUS</th>
-                            <th>FINDINGS</th>
+                            <th>REPORT</th>
                         </tr>
                     </thead>
                     <tbody id="dbBody">
@@ -159,6 +191,7 @@
         <p>SECURECORP SYSTEMS © 2025 | <a href="#">ACCESS_LOGS</a> | <a href="#">PRIVACY_PROTOCOL</a></p>
     </footer>
 
+    <script src="database.js"></script>
     <script src="script.js"></script>
 </body>
 
