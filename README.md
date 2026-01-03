@@ -83,15 +83,5 @@ cd SecureCorp-Security-Assessment
 
 *DISCLAIMER: This tool is a simulation for educational and portfolio purposes only. No actual systems are harmed during the use of this website.*
 
-## Commercial License
-
-This project is NOT open source.
-
-The source code is publicly visible for review only.
-Any use, reproduction, modification, or distribution requires
-a separate paid commercial license from the author.
-
-For commercial licensing inquiries, please contact:
-📧 soumyadeepsaha2025@gmail.com
 
 **© 2025 SecureCorp Systems**
