@@ -1,3 +1,5 @@
+![SecureCorp Banner](./securecorp_banner.png)
+
 # 🛡️ SecureCorp Defense Systems | Advanced Security Simulation
 
 ![License](https://img.shields.io/badge/License-MIT-green.svg) ![Status](https://img.shields.io/badge/Status-ONLINE-brightgreen) ![Security](https://img.shields.io/badge/Security-AES--256-red)
