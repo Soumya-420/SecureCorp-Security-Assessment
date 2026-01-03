@@ -1,5 +1,7 @@
+(Screenshot 2026-01-04 012644.png)
 # 🛡️ SecureCorp Defense Systems | Advanced Security Simulation
 
+(Screenshot 2026-01-04 012644.png)
 ![License](https://img.shields.io/badge/License-MIT-green.svg) ![Status](https://img.shields.io/badge/Status-ONLINE-brightgreen) ![Security](https://img.shields.io/badge/Security-AES--256-red)
 
 > **WARNING: AUTHORIZED PERSONNEL ONLY.**
