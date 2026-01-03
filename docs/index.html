@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureCorp | Defense Systems</title>
+    <link rel="stylesheet" href="style.css?v=3">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Orbitron:wght@400;700;900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <canvas id="matrixCanvas"></canvas>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <h1 class="logo-large">SECURE<span class="highlight">CORP</span></h1>
+            <div id="disclaimer-text"></div>
+            <button id="enterBtn" class="btn-hack hidden" onclick="enterSite()">ACCEPT & ENTER</button>
+        </div>
+    </div>
+
+    <div class="overlay"></div>
+
+    <header>
+        <div class="logo">SECURE<span class="highlight">CORP</span></div>
+        <nav>
+            <a href="#hero">SYSTEM</a>
+            <a href="#modules">MODULES</a>
+            <a href="#terminal">TERMINAL</a>
+            <a href="#" id="dbLink" class="locked" onclick="authCheck()">DATABASE 🔒</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Auth Modal -->
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2><span class="highlight">AUTHORIZED PERSONNEL ONLY</span></h2>
+                <p>Enter credentials to access the vulnerability database.</p>
+                <form id="loginForm">
+                    <input type="text" id="username" placeholder="Agent ID" required>
+                    <input type="password" id="password" placeholder="Access Code" required>
+                    <button type="submit" class="btn-hack">AUTHENTICATE</button>
+                    <p id="loginMsg" class="error"></p>
+                    <p style="margin-top: 15px; font-size: 12px; color: #888;">
+                        New Agent? <a href="#" onclick="showSignUp()" style="color: var(--primary-color);">Request
+                            Clearance (Sign Up)</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sign Up Modal -->
+        <div id="signUpModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeSignUp()">&times;</span>
+                <h2><span class="highlight">NEW AGENT REGISTRATION</span></h2>
+                <p>Create a secure profile for assessment access.</p>
+                <form id="signUpForm">
+                    <input type="text" id="newUsername" placeholder="New Agent ID" required>
+                    <input type="password" id="newPassword" placeholder="Set Access Code" required>
+                    <button type="submit" class="btn-hack">REGISTER AGENT</button>
+                    <p id="signUpMsg" class="error"></p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Privacy Protocol Modal Removed -->
+
+
+        <section id="hero" class="hero">
+            <div class="hero-content">
+                <div class="status-badge">
+                    <span class="blink">●</span> SYSTEM STATUS: ONLINE
+                </div>
+                <h1 class="glitch" data-text="ADVANCED SECURITY PROTOCOLS">ADVANCED SECURITY PROTOCOLS</h1>
+                <p>Comprehensive vulnerability assessment and penetration testing framework for enterprise
+                    infrastructure.</p>
+                <div class="cta-group">
+                    <a href="#new-scan" onclick="showSection('scanInput')" class="btn-hack">START_NEW_SCAN</a>
+                    <a href="#modules" onclick="showSection('modules')" class="btn-outline">VIEW_MODULES</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Scan Input Section -->
+        <section id="scanInput" class="container hidden">
+            <h2>// INITIATE NEW ASSESSMENT</h2>
+            <div class="form-box">
+                <form id="scanForm">
+                    <div class="input-group">
+                        <label>TARGET SYSTEM (IP/DOMAIN)</label>
+                        <input type="text" id="targetInput" placeholder="e.g. 192.168.1.1 or example.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label>ASSESSMENT TYPE</label>
+                        <select id="scanType">
+                            <option value="Reconnaissance">Reconnaissance (Passive)</option>
+                            <option value="VulnScan">Vulnerability Scan (Active)</option>
+                            <option value="FullPenTest">Full Penetration Test</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>PRIORITY LEVEL</label>
+                        <select id="scanPriority">
+                            <option value="Low">Low (Stealth)</option>
+                            <option value="High">High (Aggressive)</option>
+                            <option value="Critical">Critical (Immediate)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>MANUAL TESTING MODULES</label>
+                        <div class="checkbox-grid">
+                            <label><input type="checkbox" name="modules" value="Port Scan"> Port Scan</label>
+                            <label><input type="checkbox" name="modules" value="DNS Enum"> DNS Enum</label>
+                            <label><input type="checkbox" name="modules" value="SQL Injection"> SQL Injection</label>
+                            <label><input type="checkbox" name="modules" value="XSS Audit"> XSS Audit</label>
+                            <label><input type="checkbox" name="modules" value="Brute Force"> Brute Force</label>
+                            <label><input type="checkbox" name="modules" value="Malware Analysis"> Malware
+                                Analysis</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-hack">RUN_ANALYSIS & SAVE</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Secure Database Section (Hidden until Auth) -->
+        <section id="database" class="container hidden">
+            <div class="db-header">
+                <h2>// VULNERABILITY DATABASE_</h2>
+                <button onclick="logout()" class="btn-outline red-border">LOGOUT</button>
+            </div>
+
+            <div class="terminal-window db-window">
+                <table id="dbTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>TIMESTAMP</th>
+                            <th>TARGET</th>
+                            <th>TYPE</th>
+                            <th>STATUS</th>
+                            <th>REPORT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dbBody">
+                        <!-- JS renders rows here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="terminal" class="terminal-section">
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <div class="dots">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <span class="title">root@securecorp:~</span>
+                </div>
+                <div class="terminal-body" id="terminalOutput">
+                    <!-- JS will populate this -->
+                    <div class="terminal-input-line">
+                        <span class="prompt">root@securecorp:~#</span>
+                        <input type="text" id="terminalInput" autocomplete="off" spellcheck="false">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="modules" class="modules-grid">
+            <div class="card" onclick="showModuleDetails('recon')">
+                <div class="icon">🔍</div>
+                <h3>Reconnaissance</h3>
+                <p>Network discovery, DNS enumeration, and target mapping.</p>
+            </div>
+            <div class="card" onclick="showModuleDetails('vuln')">
+                <div class="icon">🛡️</div>
+                <h3>Vulnerability Scan</h3>
+                <p>Automated identification of CVEs and system weaknesses.</p>
+            </div>
+            <div class="card" onclick="showModuleDetails('web')">
+                <div class="icon">🕸️</div>
+                <h3>Web Security</h3>
+                <p>Full-stack assessment including SQLi, XSS, and CSRF testing.</p>
+            </div>
+            <div class="card" onclick="showModuleDetails('auth')">
+                <div class="icon">🔓</div>
+                <h3>Password Auditing</h3>
+                <p>Hash analysis and dictionary attack simulations.</p>
+            </div>
+        </section>
+
+        <!-- Dynamic Module Details Section -->
+        <section id="moduleDetails" class="container hidden">
+            <h2 id="modTitle">// MODULE_DETAILS</h2>
+            <div class="form-box"
+                style="max-width: 800px; display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: start;">
+
+                <!-- Pictorial / ASCII View -->
+                <div class="ascii-art-container">
+                    <pre id="modAscii"
+                        style="font-size: 10px; line-height: 10px; color: var(--primary-color); text-shadow: 0 0 5px var(--primary-color);">
+<!-- JS Injects ASCII Here -->
+                    </pre>
+                </div>
+
+                <!-- Details & Animation -->
+                <div class="mod-content">
+                    <h3 id="modName"
+                        style="color: #fff; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px;">
+                    </h3>
+
+                    <div id="modPoints"
+                        style="margin-bottom: 20px; font-family: 'Fira Code', monospace; color: #a0a0a0;">
+                        <!-- JS Types List Here -->
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <button id="fetchBtn" class="btn-hack" onclick="fetchModuleArgs()">⬇ DOWNLOAD_SPECS</button>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn-outline red-border"
+                    onclick="document.getElementById('moduleDetails').classList.add('hidden')">CLOSE_DETAILS</button>
+            </div>
+        </section>
+        <section id="privacy" class="container hidden">
+            <h2>// PRIVACY_PROTOCOL</h2>
+            <div class="form-box" style="text-align: left;">
+                <h3
+                    style="color: var(--primary-color); border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
+                    SECURE DATA HANDLING</h3>
+
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #fff;">1. DATA ENCRYPTION</strong>
+                    <p style="color: #8b949e; margin-top: 5px;">All user data and scan results are encrypted using
+                        AES-256 standards before local storage. No data is transmitted to external servers without
+                        explicit user command.</p>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #fff;">2. NO-LOG POLICY</strong>
+                    <p style="color: #8b949e; margin-top: 5px;">SecureCorp does not maintain persistent logs of user
+                        activity beyond the active session. Terminal history is cleared upon page reload.</p>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #fff;">3. ETHICAL USE</strong>
+                    <p style="color: #8b949e; margin-top: 5px;">This tool is provided for educational and authorized
+                        security assessment purposes only. The user assumes full responsibility for any actions taken
+                        against target systems.</p>
+                </div>
+
+                <div>
+                    <strong style="color: #fff;">4. SYSTEM INTEGRITY</strong>
+                    <p style="color: #8b949e; margin-top: 5px;">Cookies are used solely for session management and
+                        "visited" state tracking to enhance user experience.</p>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn-hack red-border"
+                        onclick="this.parentElement.parentElement.parentElement.classList.add('hidden')">CLOSE_PROTOCOL</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Access Logs Section -->
+        <section id="accessLogs" class="container hidden">
+            <h2>// SYSTEM_ACCESS_LOGS</h2>
+            <div class="terminal-window" style="max-width: 800px; margin: 0 auto; height: 300px; overflow-y: auto;">
+                <div class="terminal-body" id="accessLogsBody"
+                    style="font-family: 'Fira Code', monospace; color: #0f0;">
+                    <!-- Logs injected via JS -->
+                </div>
+                <div style="text-align: center; margin-top: 20px; border-top: 1px solid #333; padding-top: 10px;">
+                    <button class="btn-hack red-border"
+                        onclick="document.getElementById('accessLogs').classList.add('hidden')">CLOSE_LOGS</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>SECURECORP SYSTEMS © 2025 | <a href="#accessLogs"
+                onclick="showSection('accessLogs'); renderAccessLogs();">ACCESS_LOGS</a> | <a href="#privacy"
+                onclick="showSection('privacy')">PRIVACY_PROTOCOL</a></p>
+    </footer>
+
+
+    <script src="database.js?v=7"></script>
+    <script src="core.js?v=34"></script>
+</body>
+
+</html>
