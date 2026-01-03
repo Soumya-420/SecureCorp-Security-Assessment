@@ -83,4 +83,12 @@ cd SecureCorp-Security-Assessment
 
 *DISCLAIMER: This tool is a simulation for educational and portfolio purposes only. No actual systems are harmed during the use of this website.*
 
+## Legal Notice
+This project is publicly visible for viewing purposes only.
+
+No rights are granted to use, copy, modify, distribute, or reuse
+any part of this code without explicit written permission from
+the author.
+
+© 2026 Soumyadeep Saha. All Rights Reserved.
 **© 2025 SecureCorp Systems**
