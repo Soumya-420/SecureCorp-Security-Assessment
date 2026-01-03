@@ -55,23 +55,6 @@ Built with pure, performance-optimized vanilla technologies.
 
 ---
 
-## ⚡ Quick Start (Local)
-
-To deploy this defense system on your local machine:
-
-```bash
-# Clone the repository
-git clone https://github.com/soumya-420/SecureCorp-Security-Assessment.git
-
-# Navigate to directory
-cd SecureCorp-Security-Assessment
-
-# Launch
-# Simple: Open docs/index.html in your browser
-# Better: Use a live server (e.g., VS Code Live Server)
-```
-
----
 
 ## 📸 System Previews
 
@@ -85,5 +68,16 @@ cd SecureCorp-Security-Assessment
 
 *DISCLAIMER: This tool is a simulation for educational and portfolio purposes only. No actual systems are harmed during the use of this website.*
 
+
+## Commercial License
+
+This project is NOT open source.
+
+The source code is publicly visible for review only.
+Any use, reproduction, modification, or distribution requires
+a separate paid commercial license from the author.
+
+For commercial licensing inquiries, please contact:
+📧 soumyadeepsaha2025@gmail.com
 
 **© 2025 SecureCorp Systems**
