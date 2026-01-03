@@ -275,11 +275,9 @@ document.getElementById('scanForm').addEventListener('submit', async function (e
 });
 
 // Init
-if (typeof SecurityDB === 'undefined') {
-    const script = document.createElement('script');
-    script.src = 'database.js';
-    document.head.appendChild(script);
-}
+// Init
+// redundant script loader removed
+
 
 // === SPLASH SCREEN & TERMINAL ANIMATION ===
 const disclaimerText = `WARNING: AUTHORIZED ACCESS ONLY
